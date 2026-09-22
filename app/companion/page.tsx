@@ -1,8 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { signOut } from '@/lib/actions/auth';
 
-export default function AdminVerificationQueue() {
+export default function CompanionDashboard() {
+  const [user, setUser] = useState<{ name: string; avatarUrl?: string; email?: string } | null>(null);
   const [items, setItems] = useState([
     {
       id: 'cmp-01',
@@ -13,6 +16,21 @@ export default function AdminVerificationQueue() {
       avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
     },
   ]);
+
+  useEffect(() => {
+    async function loadUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser({
+          name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'ผู้ร่วมเดินทาง',
+          avatarUrl: user.user_metadata?.avatar_url,
+          email: user.email,
+        });
+      }
+    }
+    loadUser();
+  }, []);
 
   const handleApprove = (id: string) => {
     alert(`อนุมัติ Companion รหัส ${id} สำเร็จ! บัญชีนี้จะปรากฏในระบบค้นหาทันที`);
@@ -25,6 +43,36 @@ export default function AdminVerificationQueue() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
+      {/* Header bar with user profile & sign out */}
+      <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          {user?.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt="avatar"
+              className="w-10 h-10 rounded-full border border-sky-200 object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-base">
+              {user?.name ? user.name.charAt(0).toUpperCase() : 'C'}
+            </div>
+          )}
+          <div>
+            <p className="text-sm font-bold text-slate-800">{user?.name || 'ผู้ร่วมเดินทาง'}</p>
+            <span className="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-0.5 rounded-full">
+              ผู้ร่วมเดินทาง (Companion)
+            </span>
+          </div>
+        </div>
+
+        <button
+          onClick={() => signOut()}
+          className="text-xs text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-300 hover:border-rose-200 px-3.5 py-2 rounded-xl transition cursor-pointer font-medium"
+        >
+          ออกจากระบบ
+        </button>
+      </div>
+
       <h1 className="text-2xl font-bold text-slate-800 mb-6">คิวตรวจสอบและอนุมัติเอกสาร Companion (KYC)</h1>
 
       <div className="space-y-4">

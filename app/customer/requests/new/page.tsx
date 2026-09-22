@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function NewRequestPage() {
+function NewRequestForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const companionId = searchParams.get('companion') || 'cmp-01';
@@ -134,5 +134,17 @@ export default function NewRequestPage() {
         </button>
       </form>
     </div>
+  );
+}
+
+export default function NewRequestPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
+      </div>
+    }>
+      <NewRequestForm />
+    </Suspense>
   );
 }

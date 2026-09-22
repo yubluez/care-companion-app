@@ -37,7 +37,7 @@ export default function CompanionJobsPage() {
               <h3 className="text-lg font-bold text-slate-800">{req.customerName} ({req.area})</h3>
               <p className="text-slate-600 text-sm">📅 วันที่: {req.date} เวลา: {req.time}</p>
               <p className="text-slate-500 text-xs text-amber-700">
-                🔒 เบอร์โทรและจุดนัดพบละเอียดจะเปิดเผยหลังจากท่านกด "รับงาน"
+                🔒 เบอร์โทรและจุดนัดพบละเอียดจะเปิดเผยหลังจากท่านกด &quot;รับงาน&quot;
               </p>
             </div>
 
