@@ -1,74 +1,130 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get('code');
-  const error = searchParams.get('error');
-  const errorDescription = searchParams.get('error_description');
 
+  const code = searchParams.get("code");
+  const error = searchParams.get("error");
+  const errorDescription = searchParams.get("error_description");
+
+  // 1. ตรวจสอบ Error จาก Google OAuth
   if (error) {
-    console.error('OAuth callback error:', error, errorDescription);
-    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(errorDescription || error)}`);
+    console.error("OAuth callback error:", error, errorDescription);
+
+    return NextResponse.redirect(
+      `${origin}/login?error=${encodeURIComponent(errorDescription || error)}`,
+    );
   }
 
-  if (code) {
-    const supabase = await createClient();
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+  // 2. ตรวจสอบ Authorization Code
+  if (!code) {
+    return NextResponse.redirect(`${origin}/login?error=no_code`);
+  }
 
-    if (!exchangeError) {
-      const { data: { user } } = await supabase.auth.getUser();
+  const supabase = await createClient();
 
-      let destination = '/onboarding/role';
+  // 3. แลก Code เป็น Session
+  const { error: exchangeError } =
+    await supabase.auth.exchangeCodeForSession(code);
 
-      if (user) {
-        let role = user.user_metadata?.role;
+  if (exchangeError) {
+    console.error("Exchange code error:", exchangeError.message);
 
-        if (!role) {
-          try {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('role')
-              .eq('id', user.id)
-              .single();
-            if (profile?.role) {
-              role = profile.role;
-            }
-          } catch {
-            // profiles table may not exist
-          }
-        }
+    return NextResponse.redirect(
+      `${origin}/login?error=${encodeURIComponent(exchangeError.message)}`,
+    );
+  }
 
-        if (role === 'customer') {
-          destination = '/customer';
-        } else if (role === 'companion') {
-          destination = '/companion';
-        } else {
-          destination = '/onboarding/role';
-        }
+  // 4. ดึงข้อมูลผู้ใช้ที่ Login
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-        // If user already has a role and requested a specific page
-        const requestedNext = searchParams.get('next');
-        if (requestedNext && requestedNext !== '/' && requestedNext !== '/onboarding/role' && role) {
-          destination = requestedNext;
-        }
-      }
+  if (userError || !user) {
+    return NextResponse.redirect(`${origin}/login?error=user_not_found`);
+  }
 
-      const forwardedHost = request.headers.get('x-forwarded-host');
-      const isLocalEnv = process.env.NODE_ENV === 'development';
+  // 5. ดึง Role จาก Database โดยตรง
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role, full_name, phone")
+    .eq("id", user.id)
+    .single();
 
-      if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${destination}`);
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${destination}`);
-      } else {
-        return NextResponse.redirect(`${origin}${destination}`);
-      }
+  // หากไม่สามารถอ่านข้อมูลได้
+  if (profileError) {
+    console.error("Error fetching profile:", profileError);
+
+    return NextResponse.redirect(
+      `${origin}/login?error=${encodeURIComponent(
+        "ไม่สามารถตรวจสอบข้อมูลผู้ใช้ได้",
+      )}`,
+    );
+  }
+
+  // 6. กำหนด Role จาก Database
+  const role = profile?.role;
+
+  let destination = "/onboarding/role";
+
+  if (role === "customer") {
+    // Customer ยังกรอกข้อมูลไม่ครบ
+    if (!profile.full_name || !profile.phone) {
+      destination = "/onboarding/customer";
     } else {
-      console.error('Exchange code error:', exchangeError.message);
-      return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(exchangeError.message)}`);
+      destination = "/customer";
+    }
+  } else if (role === "companion") {
+    // Companion เดี๋ยวเราจะทำ onboarding แยกต่อ
+    destination = "/onboarding/companion";
+  } else if (role === "admin") {
+    destination = "/admin";
+  }
+
+  // 7. ตรวจสอบหน้าที่ผู้ใช้ต้องการไป
+  const requestedNext = searchParams.get("next");
+
+  const customerProfileComplete =
+    role === "customer" &&
+    Boolean(profile?.full_name) &&
+    Boolean(profile?.phone);
+
+  if (
+    requestedNext &&
+    requestedNext.startsWith("/") &&
+    !requestedNext.startsWith("//") &&
+    !requestedNext.startsWith("/\\") &&
+    !requestedNext.includes("\\") &&
+    role &&
+    role !== "admin" &&
+    (role !== "customer" || customerProfileComplete)
+  ) {
+    const allowedPrefix = `/${role}`;
+
+    if (
+      requestedNext === allowedPrefix ||
+      requestedNext.startsWith(`${allowedPrefix}/`)
+    ) {
+      destination = requestedNext;
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=no_code`);
+  // 8. Redirect ไปยังหน้าที่ถูกต้อง
+  const forwardedHost = request.headers.get("x-forwarded-host");
+
+  const isLocalEnv = process.env.NODE_ENV === "development";
+
+  if (isLocalEnv) {
+    return NextResponse.redirect(`${origin}${destination}`);
+  }
+
+  if (forwardedHost) {
+    // ใช้เฉพาะกรณีที่ Proxy ของระบบกำหนด
+    // x-forwarded-host จาก Host ที่เชื่อถือได้
+    return NextResponse.redirect(`https://${forwardedHost}${destination}`);
+  }
+
+  return NextResponse.redirect(`${origin}${destination}`);
 }

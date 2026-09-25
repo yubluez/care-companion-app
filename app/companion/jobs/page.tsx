@@ -1,63 +1,224 @@
-'use client';
+import { redirect } from "next/navigation";
 
-import { useState } from 'react';
+import { createClient } from "@/lib/supabase/server";
 
-export default function CompanionJobsPage() {
-  const [requests, setRequests] = useState([
-    {
-      id: 'req-001',
-      customerName: 'คุณสมศรี',
-      serviceType: 'ไปพบแพทย์ (รพ.รามาธิบดี)',
-      date: '2026-09-25',
-      time: '09:00 - 12:00 น.',
-      area: 'พญาไท',
-      fee: '500 บาท',
-    },
-  ]);
+import JobCard, {
+  type CompanionJob,
+} from "@/components/companion/jobs/JobCard";
 
-  const handleAccept = (id: string) => {
-    alert(`รับงานรหัส ${id} สำเร็จ! คุณจะสามารถเห็นเบอร์โทรและจุดนัดพบของลูกค้าได้ทันที`);
-  };
+export default async function CompanionJobsPage() {
+  const supabase = await createClient();
 
-  const handleReject = (id: string) => {
-    alert(`ปฏิเสธคำขอ ${id} เรียบร้อยแล้ว`);
-  };
+  // Auth
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  // Profile
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile) {
+    redirect("/login");
+  }
+
+  if (profile.role !== "companion") {
+    if (profile.role === "customer") {
+      redirect("/customer");
+    }
+
+    redirect("/onboarding/role");
+  }
+
+  // Companion KYC
+  const { data: companion } = await supabase
+    .from("companion_profiles")
+    .select("verification_status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!companion) {
+    redirect("/onboarding/companion");
+  }
+
+  if (companion.verification_status !== "approved") {
+    redirect("/onboarding/companion/status");
+  }
+
+  // Jobs
+  const { data, error } = await supabase
+    .from("service_requests")
+    .select(
+      `
+      id,
+      service_date,
+      start_time,
+      duration_minutes,
+      destination_name,
+      offered_fee,
+      status,
+
+      customer:profiles!service_requests_customer_id_fkey (
+        full_name,
+        avatar_url
+      ),
+
+      category:service_categories (
+        name
+      )
+    `,
+    )
+    .eq("companion_id", user.id)
+    .in("status", ["accepted", "in_progress", "completed", "cancelled"])
+    .order("service_date", {
+      ascending: false,
+    })
+    .order("start_time", {
+      ascending: false,
+    });
+
+  if (error) {
+    console.error("Load companion jobs error:", error);
+  }
+
+  const jobs: CompanionJob[] = (data ?? []).map((row) => {
+    const customer = Array.isArray(row.customer)
+      ? (row.customer[0] ?? null)
+      : (row.customer ?? null);
+
+    const category = Array.isArray(row.category)
+      ? (row.category[0] ?? null)
+      : (row.category ?? null);
+
+    return {
+      id: row.id,
+
+      serviceDate: row.service_date ?? "",
+
+      startTime: row.start_time ?? "",
+
+      durationMinutes: row.duration_minutes ?? null,
+
+      destinationName: row.destination_name ?? null,
+
+      offeredFee: row.offered_fee ?? null,
+
+      status: row.status,
+
+      customer: customer
+        ? {
+            fullName: customer.full_name ?? null,
+
+            avatarUrl: customer.avatar_url ?? null,
+          }
+        : null,
+
+      category: category
+        ? {
+            name: category.name,
+          }
+        : null,
+    };
+  });
+
+  const activeJobs = jobs.filter(
+    (job) => job.status === "accepted" || job.status === "in_progress",
+  );
+
+  const completedJobs = jobs.filter((job) => job.status === "completed");
+
+  const cancelledJobs = jobs.filter((job) => job.status === "cancelled");
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">คำขอใหม่ที่รอการตอบรับ</h1>
+    <main className="min-h-screen bg-slate-50">
+      <div className="mx-auto max-w-5xl px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900">งานของฉัน</h1>
 
-      <div className="space-y-4">
-        {requests.map((req) => (
-          <div key={req.id} className="bg-white p-6 rounded-3xl border border-sky-100 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="space-y-1">
-              <span className="bg-sky-100 text-sky-800 text-xs font-bold px-2.5 py-0.5 rounded-full">
-                {req.serviceType}
-              </span>
-              <h3 className="text-lg font-bold text-slate-800">{req.customerName} ({req.area})</h3>
-              <p className="text-slate-600 text-sm">📅 วันที่: {req.date} เวลา: {req.time}</p>
-              <p className="text-slate-500 text-xs text-amber-700">
-                🔒 เบอร์โทรและจุดนัดพบละเอียดจะเปิดเผยหลังจากท่านกด &quot;รับงาน&quot;
-              </p>
-            </div>
+          <p className="mt-1 text-slate-500">ติดตามและจัดการงานที่คุณตอบรับ</p>
+        </div>
 
-            <div className="flex gap-2 w-full md:w-auto">
-              <button
-                onClick={() => handleReject(req.id)}
-                className="flex-1 md:flex-none px-4 py-2.5 border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold rounded-xl text-sm transition"
-              >
-                ปฏิเสธ
-              </button>
-              <button
-                onClick={() => handleAccept(req.id)}
-                className="flex-1 md:flex-none px-6 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl text-sm transition shadow"
-              >
-                รับงาน
-              </button>
-            </div>
+        {error ? (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-rose-600">
+            ไม่สามารถโหลดข้อมูลงานได้
           </div>
-        ))}
+        ) : (
+          <div className="space-y-10">
+            {/* Active */}
+            <JobSection
+              title="งานที่กำลังดำเนินการ"
+              description="งานที่รับแล้วหรือกำลังให้บริการ"
+              jobs={activeJobs}
+              emptyText="ยังไม่มีงานที่กำลังดำเนินการ"
+            />
+
+            {/* Completed */}
+            <JobSection
+              title="งานที่เสร็จสิ้น"
+              description="ประวัติงานที่ให้บริการสำเร็จ"
+              jobs={completedJobs}
+              emptyText="ยังไม่มีงานที่เสร็จสิ้น"
+            />
+
+            {/* Cancelled */}
+            {cancelledJobs.length > 0 && (
+              <JobSection
+                title="งานที่ถูกยกเลิก"
+                description="รายการงานที่ถูกยกเลิก"
+                jobs={cancelledJobs}
+                emptyText=""
+              />
+            )}
+          </div>
+        )}
       </div>
-    </div>
+    </main>
+  );
+}
+
+function JobSection({
+  title,
+  description,
+  jobs,
+  emptyText,
+}: {
+  title: string;
+  description: string;
+  jobs: CompanionJob[];
+  emptyText: string;
+}) {
+  return (
+    <section>
+      <div className="mb-4">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-bold text-slate-900">{title}</h2>
+
+          <span className="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-bold text-slate-600">
+            {jobs.length}
+          </span>
+        </div>
+
+        <p className="mt-1 text-sm text-slate-400">{description}</p>
+      </div>
+
+      {jobs.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-10 text-center text-sm text-slate-400">
+          {emptyText}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {jobs.map((job) => (
+            <JobCard key={job.id} job={job} />
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
