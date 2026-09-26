@@ -1,73 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import RequestTabs from "@/components/customer/requests/RequestTabs";
-import RequestCard from "@/components/customer/requests/RequestCard";
+import RequestTabs from "./RequestTabs";
+import RequestCard from "./RequestCard";
 import RequestDetailModal from "./RequestDetailModal";
 
-export type RequestStatus =
-  | "pending"
-  | "accepted"
-  | "in_progress"
-  | "completed"
-  | "cancelled";
+import type { ServiceRequest, RequestFilter } from "./types";
 
-export type ServiceRequest = {
-  id: string;
-  category: string;
-  date: string;
-  time: string;
-  duration: string;
-  origin: string;
-  destination: string;
-  companionName: string;
-  status: RequestStatus;
+type Props = {
+  requests: ServiceRequest[];
 };
 
-const requests: ServiceRequest[] = [
-  {
-    id: "REQ001",
-    category: "ไปโรงพยาบาล",
-    date: "28 ก.ย. 2569",
-    time: "09:00",
-    duration: "3 ชั่วโมง",
-    origin: "บางแค",
-    destination: "โรงพยาบาลศิริราช",
-    companionName: "สมชาย ใจดี",
-    status: "pending",
-  },
-  {
-    id: "REQ002",
-    category: "ไปธนาคาร",
-    date: "30 ก.ย. 2569",
-    time: "13:00",
-    duration: "2 ชั่วโมง",
-    origin: "หนองแขม",
-    destination: "ธนาคาร",
-    companionName: "พิมพ์ชนก ดีงาม",
-    status: "accepted",
-  },
-  {
-    id: "REQ003",
-    category: "ติดต่อหน่วยงานราชการ",
-    date: "20 ก.ย. 2569",
-    time: "10:00",
-    duration: "2 ชั่วโมง",
-    origin: "บางแค",
-    destination: "สำนักงานเขต",
-    companionName: "ธนกร มีสุข",
-    status: "completed",
-  },
-];
-
-export type RequestFilter =
-  | "all"
-  | "pending"
-  | "progress"
-  | "completed"
-  | "cancelled";
-
-export default function RequestList() {
+export default function RequestList({ requests }: Props) {
   const [activeTab, setActiveTab] = useState<RequestFilter>("all");
 
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(
@@ -75,19 +19,27 @@ export default function RequestList() {
   );
 
   const filteredRequests = requests.filter((request) => {
-    if (activeTab === "all") {
-      return true;
-    }
+    switch (activeTab) {
+      case "all":
+        return true;
 
-    if (activeTab === "pending") {
-      return request.status === "pending";
-    }
+      case "pending":
+        return request.status === "pending";
 
-    if (activeTab === "progress") {
-      return request.status === "accepted" || request.status === "in_progress";
-    }
+      case "progress":
+        return (
+          request.status === "accepted" || request.status === "in_progress"
+        );
 
-    return request.status === activeTab;
+      case "completed":
+        return request.status === "completed";
+
+      case "cancelled":
+        return ["cancelled", "rejected", "expired"].includes(request.status);
+
+      default:
+        return true;
+    }
   });
 
   return (
@@ -108,12 +60,12 @@ export default function RequestList() {
             />
           ))
         ) : (
-          <div className="bg-white border border-slate-200 rounded-2xl py-16 text-center">
-            <div className="text-4xl mb-3">📋</div>
+          <div className="rounded-2xl border border-slate-200 bg-white py-16 text-center">
+            <div className="mb-3 text-4xl">📋</div>
 
             <h3 className="font-bold text-slate-800">ไม่พบคำขอ</h3>
 
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="mt-1 text-sm text-slate-500">
               ยังไม่มีคำขอในสถานะนี้
             </p>
           </div>

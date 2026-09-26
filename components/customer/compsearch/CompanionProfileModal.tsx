@@ -1,4 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import CompanionReviewsList from "@/components/shared/CompanionReviewsList";
 import type { Companion } from "@/app/customer/compsearch/page";
 
 type Props = {
@@ -7,101 +11,147 @@ type Props = {
 };
 
 export default function CompanionProfileModal({ companion, onClose }: Props) {
+  const [view, setView] = useState<"profile" | "reviews">("profile");
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        if (view === "reviews") {
+          setView("profile");
+        } else {
+          onClose();
+        }
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose, view]);
+
   return (
     <div
-      onClick={onClose}
-      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-white w-full max-w-xl rounded-3xl shadow-xl overflow-hidden"
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="companion-modal-title"
+        className="flex max-h-[85vh] w-full max-w-xl flex-col overflow-hidden rounded-3xl bg-white shadow-xl"
       >
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100">
-          <h2 className="text-xl font-bold">โปรไฟล์ Companion</h2>
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+          {view === "profile" ? (
+            <h2 id="companion-modal-title" className="text-xl font-bold">
+              โปรไฟล์ Companion
+            </h2>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setView("profile")}
+              className="font-semibold text-sky-600 hover:text-sky-700"
+            >
+              ← กลับไปหน้าโปรไฟล์
+            </button>
+          )}
 
           <button
+            type="button"
+            aria-label="ปิดโปรไฟล์"
             onClick={onClose}
-            className="w-9 h-9 rounded-full hover:bg-slate-100 cursor-pointer text-xl"
+            className="h-9 w-9 rounded-full text-xl hover:bg-slate-100"
           >
             ×
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6">
-          <div className="flex items-center gap-5">
-            {companion.avatar ? (
-              <img
-                src={companion.avatar}
-                alt={companion.name}
-                className="w-20 h-20 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-3xl font-bold">
-                {companion.name.charAt(0)}
-              </div>
-            )}
+        <div className="min-h-0 flex-1 overflow-y-auto p-6">
+          {view === "profile" ? (
+            <div className="space-y-6">
+              <div className="flex items-center gap-5">
+                {companion.avatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={companion.avatar}
+                    alt={companion.name}
+                    className="h-20 w-20 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-sky-100 text-3xl font-bold text-sky-600">
+                    {companion.name.charAt(0)}
+                  </div>
+                )}
 
-            <div>
-              <h3 className="text-xl font-bold">{companion.name}</h3>
+                <div>
+                  <h3 className="text-xl font-bold">{companion.name}</h3>
 
-              <p className="text-amber-500 mt-1">
-                ⭐ {companion.rating}
-                <span className="text-slate-400 ml-2">
-                  ({companion.reviews} รีวิว)
-                </span>
-              </p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    {companion.reviews > 0
+                      ? `⭐ ${companion.rating.toFixed(1)} (${companion.reviews} รีวิว)`
+                      : "ยังไม่มีรีวิว"}
+                  </p>
 
-              <span className="inline-block mt-2 bg-emerald-50 text-emerald-600 text-xs font-semibold px-3 py-1 rounded-full">
-                พร้อมให้บริการ
-              </span>
-            </div>
-          </div>
-
-          {/* Info */}
-          <div className="mt-7 space-y-5">
-            <div>
-              <p className="text-sm text-slate-400">พื้นที่ให้บริการ</p>
-
-              <p className="font-medium mt-1">📍 {companion.location}</p>
-            </div>
-
-            <div>
-              <p className="text-sm text-slate-400 mb-2">ประเภทงานที่รับ</p>
-
-              <div className="flex gap-2 flex-wrap">
-                {companion.types.map((type) => (
-                  <span
-                    key={type}
-                    className="bg-sky-50 text-sky-700 text-sm px-3 py-1.5 rounded-lg"
-                  >
-                    {type}
+                  <span className="mt-2 inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-600">
+                    ผ่านการอนุมัติ
                   </span>
-                ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-2 text-sm text-slate-400">แนะนำตัว</p>
+
+                <p className="whitespace-pre-wrap text-slate-800">
+                  {companion.bio || "Companion ยังไม่ได้เพิ่มข้อมูลแนะนำตัว"}
+                </p>
+              </div>
+
+              <div className="border-t border-slate-100 pt-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-slate-900">รีวิวจากลูกค้า</h3>
+
+                  {companion.reviews > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setView("reviews")}
+                      className="text-sm font-semibold text-sky-600 hover:text-sky-700"
+                    >
+                      ดูทั้งหมด ({companion.reviews}) →
+                    </button>
+                  )}
+                </div>
+
+                <p className="mt-3 text-sm text-slate-500">
+                  {companion.reviews > 0
+                    ? `คะแนนเฉลี่ย ${companion.rating.toFixed(1)} จาก 5 ดาว`
+                    : "ยังไม่มีรีวิวจากลูกค้า"}
+                </p>
               </div>
             </div>
-
-            <div>
-              <p className="text-sm text-slate-400">ประสบการณ์</p>
-
-              <p className="font-medium mt-1">
-                ให้บริการสำเร็จแล้ว {companion.jobs} งาน
-              </p>
-            </div>
-          </div>
+          ) : (
+            <CompanionReviewsList companionId={companion.id} />
+          )}
         </div>
 
         {/* Footer */}
-        <div className="border-t border-slate-100 p-5 bg-slate-50">
-          <Link
-            href={`/customer/requests/new?companion=${companion.id}`}
-            className="block w-full bg-sky-600 hover:bg-sky-700 text-white text-center font-semibold py-3 rounded-xl transition"
-          >
-            ส่งคำขอใช้บริการ
-          </Link>
-        </div>
-      </div>
+        {view === "profile" && (
+          <div className="border-t border-slate-100 bg-slate-50 p-5">
+            <Link
+              href={`/customer/requests/new?companion=${encodeURIComponent(
+                companion.id,
+              )}`}
+              className="block w-full rounded-xl bg-sky-600 py-3 text-center font-semibold text-white transition hover:bg-sky-700"
+            >
+              ส่งคำขอใช้บริการ
+            </Link>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

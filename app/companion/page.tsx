@@ -3,9 +3,9 @@ import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
 
-import RequestCard, {
-  type CompanionRequest,
-} from "@/components/companion/requests/RequestCard";
+import RequestCard from "@/components/companion/requests/RequestCard";
+
+import type { CompanionRequest } from "@/components/companion/requests/types";
 
 export default async function CompanionRequestsPage() {
   const supabase = await createClient();

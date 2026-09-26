@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ServiceRequest, RequestStatus } from "./RequestList";
+import type { ServiceRequest, RequestStatus } from "./types";
 
 type Props = {
   request: ServiceRequest;
@@ -35,6 +35,16 @@ const statusConfig: Record<
 
   cancelled: {
     label: "ยกเลิก",
+    style: "bg-slate-100 text-slate-600 border-slate-200",
+  },
+
+  rejected: {
+    label: "ถูกปฏิเสธ",
+    style: "bg-rose-50 text-rose-700 border-rose-200",
+  },
+  
+  expired: {
+    label: "หมดอายุ",
     style: "bg-slate-100 text-slate-600 border-slate-200",
   },
 };

@@ -1,20 +1,35 @@
+import { redirect } from "next/navigation";
 import RequestList from "@/components/customer/requests/RequestList";
+import { getCustomerRequests } from "@/lib/queries/customerRequests";
+import { createClient } from "@/lib/supabase/server";
 
-export default function RequestsPage() {
+export default async function RequestsPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const requests = await getCustomerRequests();
+
   return (
     <main className="min-h-screen bg-slate-50">
-      <div className="max-w-6xl mx-auto px-6 py-10">
+      <div className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-8">
-          <p className="text-sky-600 font-semibold mb-1">คำขอใช้บริการ</p>
+          <p className="mb-1 font-semibold text-sky-600">คำขอใช้บริการ</p>
 
           <h1 className="text-3xl font-bold text-slate-900">คำขอของฉัน</h1>
 
-          <p className="text-slate-500 mt-2">
+          <p className="mt-2 text-slate-500">
             ติดตามสถานะและดูประวัติคำขอใช้บริการของคุณ
           </p>
         </div>
 
-        <RequestList />
+        <RequestList requests={requests} />
       </div>
     </main>
   );

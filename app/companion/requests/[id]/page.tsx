@@ -12,9 +12,7 @@ type Props = {
   }>;
 };
 
-export default async function CompanionRequestDetailPage({
-  params,
-}: Props) {
+export default async function CompanionRequestDetailPage({ params }: Props) {
   const { id } = await params;
 
   const supabase = await createClient();
@@ -64,13 +62,15 @@ export default async function CompanionRequestDetailPage({
   // โหลด Request
   const { data: request, error } = await supabase
     .from("service_requests")
-    .select(`
+    .select(
+      `
       id,
       service_date,
       start_time,
       duration_minutes,
       destination_name,
       note,
+      meeting_detail,
       offered_fee,
       status,
 
@@ -94,7 +94,8 @@ export default async function CompanionRequestDetailPage({
         province,
         district
       )
-    `)
+    `,
+    )
     .eq("id", id)
     .eq("companion_id", user.id)
     .maybeSingle();
@@ -119,9 +120,7 @@ export default async function CompanionRequestDetailPage({
   const customer = getRelation(request.customer);
   const category = getRelation(request.category);
   const origin = getRelation(request.origin);
-  const destinationArea = getRelation(
-    request.destination_area,
-  );
+  const destinationArea = getRelation(request.destination_area);
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -138,9 +137,7 @@ export default async function CompanionRequestDetailPage({
           <div className="p-6 sm:p-8 border-b border-slate-100">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div>
-                <p className="text-sm text-slate-400 mb-1">
-                  คำขอใช้บริการ
-                </p>
+                <p className="text-sm text-slate-400 mb-1">คำขอใช้บริการ</p>
 
                 <h1 className="text-2xl font-bold text-slate-900">
                   {category?.name || "บริการ Companion"}
@@ -160,9 +157,7 @@ export default async function CompanionRequestDetailPage({
           <div className="p-6 sm:p-8 space-y-8">
             {/* Customer */}
             <section>
-              <h2 className="font-bold text-slate-900 mb-4">
-                ข้อมูลลูกค้า
-              </h2>
+              <h2 className="font-bold text-slate-900 mb-4">ข้อมูลลูกค้า</h2>
 
               <div className="flex items-center gap-4">
                 {customer?.avatar_url ? (
@@ -173,9 +168,7 @@ export default async function CompanionRequestDetailPage({
                   />
                 ) : (
                   <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-lg font-bold text-slate-500">
-                    {(customer?.full_name || "C")
-                      .charAt(0)
-                      .toUpperCase()}
+                    {(customer?.full_name || "C").charAt(0).toUpperCase()}
                   </div>
                 )}
 
@@ -195,9 +188,7 @@ export default async function CompanionRequestDetailPage({
 
             {/* Date / Time */}
             <section>
-              <h2 className="font-bold text-slate-900 mb-4">
-                วันและเวลา
-              </h2>
+              <h2 className="font-bold text-slate-900 mb-4">วันและเวลา</h2>
 
               <div className="grid sm:grid-cols-3 gap-4">
                 <DetailItem
@@ -212,26 +203,20 @@ export default async function CompanionRequestDetailPage({
 
                 <DetailItem
                   label="ระยะเวลา"
-                  value={formatDuration(
-                    request.duration_minutes,
-                  )}
+                  value={formatDuration(request.duration_minutes)}
                 />
               </div>
             </section>
 
             {/* Location */}
             <section>
-              <h2 className="font-bold text-slate-900 mb-4">
-                สถานที่
-              </h2>
+              <h2 className="font-bold text-slate-900 mb-4">สถานที่</h2>
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <DetailItem
                   label="พื้นที่ต้นทาง"
                   value={
-                    origin
-                      ? `${origin.district}, ${origin.province}`
-                      : "-"
+                    origin ? `${origin.district}, ${origin.province}` : "-"
                   }
                 />
 
@@ -248,14 +233,28 @@ export default async function CompanionRequestDetailPage({
             </section>
 
             {/* Note */}
-            <section>
-              <h2 className="font-bold text-slate-900 mb-3">
-                รายละเอียดเพิ่มเติม
-              </h2>
+            <section className="space-y-4">
+              <h2 className="font-bold text-slate-900">รายละเอียดเพิ่มเติม</h2>
 
-              <div className="bg-slate-50 rounded-xl p-4 text-slate-600 whitespace-pre-wrap">
-                {request.note || "ไม่มีรายละเอียดเพิ่มเติม"}
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="mb-2 text-sm text-slate-500">
+                  ข้อมูลเพิ่มเติมจากลูกค้า
+                </p>
+                <p className="whitespace-pre-wrap text-slate-700">
+                  {request.note || "ไม่มีรายละเอียดเพิ่มเติม"}
+                </p>
               </div>
+
+              {request.meeting_detail && (
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <p className="mb-2 text-sm text-slate-500">
+                    รายละเอียดจุดนัดพบ
+                  </p>
+                  <p className="whitespace-pre-wrap text-slate-700">
+                    {request.meeting_detail}
+                  </p>
+                </div>
+              )}
             </section>
 
             {/* Fee */}
@@ -272,9 +271,7 @@ export default async function CompanionRequestDetailPage({
 
               <p className="text-2xl font-bold text-emerald-700">
                 {request.offered_fee != null
-                  ? `฿${Number(
-                      request.offered_fee,
-                    ).toLocaleString("th-TH")}`
+                  ? `฿${Number(request.offered_fee).toLocaleString("th-TH")}`
                   : "-"}
               </p>
             </section>
@@ -296,29 +293,17 @@ export default async function CompanionRequestDetailPage({
   );
 }
 
-function DetailItem({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function DetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-slate-50 rounded-xl p-4">
-      <p className="text-xs text-slate-400">
-        {label}
-      </p>
+      <p className="text-xs text-slate-400">{label}</p>
 
-      <p className="font-semibold text-slate-700 mt-1">
-        {value}
-      </p>
+      <p className="font-semibold text-slate-700 mt-1">{value}</p>
     </div>
   );
 }
 
-function getRelation<T>(
-  relation: T | T[] | null,
-): T | null {
+function getRelation<T>(relation: T | T[] | null): T | null {
   if (Array.isArray(relation)) {
     return relation[0] ?? null;
   }

@@ -1,294 +1,445 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { FormEvent, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import TravelSection from "@/components/customer/requests/travel/TravelSection";
+import {
+  initialTravelData,
+  type TravelData,
+} from "@/components/customer/requests/travel/types";
+import RouteSummary, {
+  type RouteDistances,
+} from "@/components/customer/requests/travel/RouteSummary";
+import PricingSummary from "@/components/customer/requests/pricing/PricingSummary";
+import { calculateServicePrice } from "@/lib/pricing/servicePricing";
+import { createServiceRequest } from "@/lib/actions/customerRequests";
+import { createClient } from "@/lib/supabase/client";
+
+import SelectedCompanion from "@/components/customer/requests/SelectedCompanion";
+
+import RequestDetails from "./RequestDetails";
+import RequestTravel from "./RequestTravel";
+import RequestPricing from "./RequestPricing";
+import RequestNotes from "./RequestNotes";
+
+type Category = { id: string; name: string };
+type Area = { id: string; province: string; district: string };
+type Companion = { full_name: string | null; avatar_url: string | null };
+type CompanionStats = {
+  rating_avg: number | null;
+  rating_count: number | null;
+};
+
+const fieldClass =
+  "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-sky-500";
 
 export default function NewRequestForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-
-  const [selectedCompanionId, setSelectedCompanionId] = useState<string | null>(
-    searchParams.get("companion"),
+  const [companionId, setCompanionId] = useState(searchParams.get("companion"));
+  const [companion, setCompanion] = useState<Companion | null>(null);
+  const [stats, setStats] = useState<CompanionStats | null>(null);
+  const [loadingCompanion, setLoadingCompanion] = useState(
+    Boolean(searchParams.get("companion")),
   );
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [areas, setAreas] = useState<Area[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(true);
+  const [categoryId, setCategoryId] = useState("");
+  const [serviceDate, setServiceDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [durationMinutes, setDurationMinutes] = useState(180);
+  const [originAreaId, setOriginAreaId] = useState("");
+  const [destinationAreaId, setDestinationAreaId] = useState("");
 
-  const [category, setCategory] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
-  const [duration, setDuration] = useState("");
+  const [originAreaStatus, setOriginAreaStatus] = useState<
+    "idle" | "loading" | "matched" | "manual"
+  >("idle");
+
+  const [destinationAreaStatus, setDestinationAreaStatus] = useState<
+    "idle" | "loading" | "matched" | "manual"
+  >("idle");
+
+  const [originAreaLabel, setOriginAreaLabel] = useState("");
+  const [destinationAreaLabel, setDestinationAreaLabel] = useState("");
+
+  const [travel, setTravel] = useState<TravelData>(initialTravelData);
+  const [distances, setDistances] = useState<RouteDistances | null>(null);
   const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  useEffect(() => {
+    let active = true;
+    const supabase = createClient();
+    async function load() {
+      const [categoryResult, areaResult] = await Promise.all([
+        supabase
+          .from("service_categories")
+          .select("id,name")
+          .eq("is_active", true)
+          .order("name"),
+        supabase
+          .from("areas")
+          .select("id,province,district")
+          .order("province")
+          .order("district"),
+      ]);
+      if (!active) return;
+      if (categoryResult.error || areaResult.error) {
+        setError("โหลดประเภทบริการหรือพื้นที่ไม่สำเร็จ กรุณาตรวจสอบ RLS");
+      }
+      setCategories(categoryResult.data ?? []);
+      setAreas(areaResult.data ?? []);
+      setLoadingOptions(false);
+    }
+    load();
+    return () => {
+      active = false;
+    };
+  }, []);
 
-    console.log({
-      companionId: selectedCompanionId,
-      category,
-      date,
-      time,
-      origin,
-      destination,
-      duration,
-      note,
-    });
-  };
+  useEffect(() => {
+    let active = true;
+
+    setCompanion(null);
+    setStats(null);
+
+    if (!companionId) {
+      setLoadingCompanion(false);
+      return;
+    }
+
+    setLoadingCompanion(true);
+
+    const supabase = createClient();
+
+    async function loadCompanion() {
+      try {
+        const [profile, companionProfile] = await Promise.all([
+          supabase
+            .from("profiles")
+            .select("full_name,avatar_url")
+            .eq("id", companionId)
+            .maybeSingle(),
+
+          supabase
+            .from("companion_profiles")
+            .select("rating_avg,rating_count")
+            .eq("user_id", companionId)
+            .eq("verification_status", "approved")
+            .maybeSingle(),
+        ]);
+
+        if (!active) return;
+
+        if (
+          !profile.error &&
+          !companionProfile.error &&
+          profile.data &&
+          companionProfile.data
+        ) {
+          setCompanion(profile.data);
+          setStats(companionProfile.data);
+        } else {
+          setError("ไม่พบ Companion ที่ได้รับการอนุมัติ กรุณาเลือกใหม่");
+        }
+      } catch {
+        if (active) {
+          setError("โหลดข้อมูล Companion ไม่สำเร็จ");
+        }
+      } finally {
+        if (active) {
+          setLoadingCompanion(false);
+        }
+      }
+    }
+
+    void loadCompanion();
+
+    return () => {
+      active = false;
+    };
+  }, [companionId]);
+
+  useEffect(() => {
+    if (travel.meetingType !== "pickup" || !travel.origin) {
+      return;
+    }
+
+    const { lat, lng } = travel.origin;
+    const controller = new AbortController();
+
+    async function resolveOriginArea() {
+      setOriginAreaId("");
+      setOriginAreaLabel("");
+      setOriginAreaStatus("loading");
+
+      try {
+        const response = await fetch(
+          `/api/locations/resolve-area?lat=${lat}&lng=${lng}`,
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) {
+          throw new Error("ไม่สามารถค้นหาพื้นที่ได้");
+        }
+
+        const data = await response.json();
+
+        if (controller.signal.aborted) return;
+
+        if (data.matched && data.areaId) {
+          setOriginAreaId(data.areaId);
+          setOriginAreaLabel(`${data.province} / ${data.district}`);
+          setOriginAreaStatus("matched");
+        } else {
+          setOriginAreaStatus("manual");
+        }
+      } catch {
+        if (!controller.signal.aborted) {
+          setOriginAreaStatus("manual");
+        }
+      }
+    }
+
+    void resolveOriginArea();
+
+    return () => controller.abort();
+  }, [travel.meetingType, travel.origin?.lat, travel.origin?.lng]);
+
+  useEffect(() => {
+    if (!travel.destination) return;
+
+    const { lat, lng } = travel.destination;
+    const controller = new AbortController();
+
+    async function resolveDestinationArea() {
+      setDestinationAreaId("");
+      setDestinationAreaLabel("");
+      setDestinationAreaStatus("loading");
+
+      try {
+        const response = await fetch(
+          `/api/locations/resolve-area?lat=${lat}&lng=${lng}`,
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) {
+          throw new Error("ไม่สามารถค้นหาพื้นที่ได้");
+        }
+
+        const data = await response.json();
+
+        if (controller.signal.aborted) return;
+
+        if (data.matched && data.areaId) {
+          setDestinationAreaId(data.areaId);
+          setDestinationAreaLabel(`${data.province} / ${data.district}`);
+          setDestinationAreaStatus("matched");
+        } else {
+          setDestinationAreaStatus("manual");
+        }
+      } catch {
+        if (!controller.signal.aborted) {
+          setDestinationAreaStatus("manual");
+        }
+      }
+    }
+
+    void resolveDestinationArea();
+
+    return () => controller.abort();
+  }, [travel.destination?.lat, travel.destination?.lng]);
+
+  const travelValid =
+    Boolean(travel.destination?.name.trim()) &&
+    (travel.meetingType !== "pickup" || Boolean(travel.origin?.name.trim())) &&
+    (!travel.returnRequired || Boolean(travel.returnLocation?.name.trim()));
+
+  const areaValid =
+    travel.meetingType === "pickup"
+      ? Boolean(originAreaId) && originAreaStatus !== "loading"
+      : Boolean(destinationAreaId) && destinationAreaStatus !== "loading";
+
+  // Public OSRM supports driving routes, not public transport itineraries.
+  const needsTransport =
+    travel.meetingType === "pickup" || travel.returnRequired;
+
+  const supportedTransport =
+    !needsTransport || travel.transportType !== "public_transport";
+    
+  const price =
+    travelValid && distances && supportedTransport
+      ? calculateServicePrice({
+          durationMinutes,
+          outboundDistanceKm: distances.outboundDistanceKm,
+          returnDistanceKm: distances.returnDistanceKm,
+        })
+      : null;
+
+  function changeTravel(next: TravelData) {
+    const locationChanged = (
+      a: TravelData["origin"],
+      b: TravelData["origin"],
+    ) => a?.lat !== b?.lat || a?.lng !== b?.lng;
+
+    const routeChanged =
+      travel.meetingType !== next.meetingType ||
+      travel.returnRequired !== next.returnRequired ||
+      locationChanged(travel.origin, next.origin) ||
+      locationChanged(travel.destination, next.destination) ||
+      locationChanged(travel.returnLocation, next.returnLocation);
+
+    if (routeChanged) {
+      setDistances(null);
+    }
+
+    setTravel(next);
+    setError("");
+  }
+
+  function removeCompanion() {
+    setCompanionId(null);
+    setCompanion(null);
+    setStats(null);
+    setLoadingCompanion(false);
+    setError("");
+
+    // ลบ UUID ออกจาก URL ด้วย
+    const url = new URL(window.location.href);
+    url.searchParams.delete("companion");
+
+    window.history.replaceState(
+      window.history.state,
+      "",
+      url.pathname + url.search + url.hash,
+    );
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (submitting) return;
+    setError("");
+    if (
+      !companionId ||
+      !companion ||
+      !stats ||
+      !categoryId ||
+      !serviceDate ||
+      !startTime ||
+      !areaValid ||
+      !travelValid ||
+      !supportedTransport ||
+      !price ||
+      !travel.destination
+    ) {
+      setError("กรุณาเลือก Companion และกรอกข้อมูลให้ครบ พร้อมรอผลคำนวณราคา");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const result = await createServiceRequest({
+        companionId,
+        categoryId,
+        serviceDate,
+        startTime,
+        durationMinutes,
+        meetingType: travel.meetingType,
+        transportType: travel.transportType,
+        returnRequired: travel.returnRequired,
+        originAreaId: travel.meetingType === "pickup" ? originAreaId : null,
+        destinationAreaId: destinationAreaId || null,
+        origin: travel.meetingType === "pickup" ? travel.origin : null,
+        destination: travel.destination,
+        returnLocation: travel.returnRequired ? travel.returnLocation : null,
+        meetingDetail: travel.meetingDetail,
+        note,
+      });
+      if (!result.success) {
+        setError(result.error ?? "ไม่สามารถส่งคำขอได้");
+        return;
+      }
+      // The server recalculates the route. Its final fee is authoritative.
+      router.push("/customer/requests");
+      router.refresh();
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden"
+      className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
     >
-      {/* Companion */}
-      <section className="p-6 sm:p-8 border-b border-slate-100">
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="text-lg font-bold text-slate-900">Companion</h2>
+      <SelectedCompanion
+        companionId={companionId}
+        companion={companion}
+        stats={stats}
+        loading={loadingCompanion}
+        onRemove={removeCompanion}
+      />
 
-            <p className="text-sm text-slate-500 mt-1">
-              เลือกผู้ร่วมเดินทางที่คุณต้องการส่งคำขอ
-            </p>
-          </div>
+      <RequestDetails
+        categories={categories}
+        loadingOptions={loadingOptions}
+        categoryId={categoryId}
+        onCategoryChange={setCategoryId}
+        serviceDate={serviceDate}
+        onDateChange={setServiceDate}
+        startTime={startTime}
+        onTimeChange={setStartTime}
+        durationMinutes={durationMinutes}
+        onDurationChange={setDurationMinutes}
+      />
 
-          <span className="text-xs font-semibold text-slate-400">
-            ขั้นตอนที่ 1
-          </span>
-        </div>
+      <RequestTravel
+        travel={travel}
+        onTravelChange={changeTravel}
+        supportedTransport={supportedTransport}
+      />
 
-        {selectedCompanionId ? (
-          <div className="flex items-center justify-between border border-sky-200 bg-sky-50 rounded-2xl p-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-white text-sky-600 flex items-center justify-center font-bold text-xl border border-sky-100">
-                C
-              </div>
+      <RequestPricing
+        travel={travel}
+        durationMinutes={durationMinutes}
+        distances={distances}
+        travelValid={travelValid}
+        supportedTransport={supportedTransport}
+        onCalculated={setDistances}
+      />
 
-              <div>
-                <p className="font-bold text-slate-800">Companion ที่เลือก</p>
-
-                <p className="text-sm text-slate-500 mt-1">
-                  เลือกมาจากหน้าค้นหา Companion
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setSelectedCompanionId(null)}
-              aria-label="ยกเลิกการเลือก Companion"
-              title="ยกเลิกการเลือก Companion"
-              className="flex items-center justify-center w-8 h-8 rounded-full text-slate-400 hover:bg-rose-100 hover:text-rose-600
-                          transition cursor-pointer text-3xl"
-            >
-              ×
-            </button>
-          </div>
-        ) : (
-          <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center">
-            <p className="font-semibold text-slate-700">
-              ยังไม่ได้เลือก Companion
-            </p>
-
-            <p className="text-sm text-slate-500 mt-1">
-              กรุณาเลือก Companion ก่อนส่งคำขอ
-            </p>
-
-            <a
-              href="/customer/compsearch"
-              className="inline-block mt-4 bg-sky-600 hover:bg-sky-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition"
-            >
-              ค้นหา Companion
-            </a>
-          </div>
-        )}
-      </section>
-
-      {/* Service Information */}
-      <section className="p-6 sm:p-8 border-b border-slate-100">
-        <div className="mb-6">
-          <h2 className="text-lg font-bold text-slate-900">รายละเอียดธุระ</h2>
-
-          <p className="text-sm text-slate-500 mt-1">
-            บอก Companion ว่าคุณต้องการให้ช่วยเรื่องอะไร
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Category */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              ประเภทของธุระ
-              <span className="text-rose-500"> *</span>
-            </label>
-
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              required
-              className="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            >
-              <option value="">เลือกประเภทของธุระ</option>
-
-              <option value="hospital">ไปโรงพยาบาล / พบแพทย์</option>
-
-              <option value="bank">ไปธนาคาร</option>
-
-              <option value="government">ติดต่อหน่วยงานราชการ</option>
-
-              <option value="shopping">ซื้อของ / ทำธุระ</option>
-
-              <option value="other">อื่น ๆ</option>
-            </select>
-          </div>
-
-          {/* Date */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              วันที่
-              <span className="text-rose-500"> *</span>
-            </label>
-
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-              className="w-full border border-slate-300 rounded-xl px-4 py-3 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            />
-          </div>
-
-          {/* Time */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              เวลาเริ่ม
-              <span className="text-rose-500"> *</span>
-            </label>
-
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              required
-              className="w-full border border-slate-300 rounded-xl px-4 py-3 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            />
-          </div>
-
-          {/* Duration */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              ระยะเวลาที่ต้องการใช้บริการ
-              <span className="text-rose-500"> *</span>
-            </label>
-
-            <select
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              required
-              className="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            >
-              <option value="">เลือกระยะเวลา</option>
-
-              <option value="60">ประมาณ 1 ชั่วโมง</option>
-
-              <option value="120">ประมาณ 2 ชั่วโมง</option>
-
-              <option value="180">ประมาณ 3 ชั่วโมง</option>
-
-              <option value="240">ประมาณ 4 ชั่วโมง</option>
-
-              <option value="300">มากกว่า 4 ชั่วโมง</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      {/* Location */}
-      <section className="p-6 sm:p-8 border-b border-slate-100">
-        <div className="mb-6">
-          <h2 className="text-lg font-bold text-slate-900">สถานที่</h2>
-
-          <p className="text-sm text-slate-500 mt-1">
-            ระบุสถานที่นัดพบและจุดหมายปลายทาง
-          </p>
-        </div>
-
-        <div className="space-y-5">
-          {/* Origin */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              สถานที่ต้นทาง / จุดนัดพบ
-              <span className="text-rose-500"> *</span>
-            </label>
-
-            <input
-              type="text"
-              value={origin}
-              onChange={(e) => setOrigin(e.target.value)}
-              required
-              placeholder="เช่น บ้านเลขที่ 99 เขตบางแค กรุงเทพมหานคร"
-              className="w-full border border-slate-300 rounded-xl px-4 py-3 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            />
-          </div>
-
-          {/* Destination */}
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">
-              จุดหมายปลายทาง
-              <span className="text-rose-500"> *</span>
-            </label>
-
-            <input
-              type="text"
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              required
-              placeholder="เช่น โรงพยาบาลศิริราช"
-              className="w-full border border-slate-300 rounded-xl px-4 py-3 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Additional Detail */}
-      <section className="p-6 sm:p-8">
-        <div className="mb-5">
-          <h2 className="text-lg font-bold text-slate-900">
-            รายละเอียดเพิ่มเติม
-          </h2>
-
-          <p className="text-sm text-slate-500 mt-1">
-            ระบุข้อมูลที่ Companion ควรทราบก่อนรับงาน
-          </p>
-        </div>
-
-        <textarea
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          rows={5}
-          maxLength={500}
-          placeholder="เช่น ต้องการให้ช่วยพาไปพบแพทย์และช่วยติดต่อเจ้าหน้าที่..."
-          className="w-full resize-none border border-slate-300 rounded-xl px-4 py-3 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-        />
-
-        <div className="text-right text-xs text-slate-400 mt-1">
-          {note.length}/500
-        </div>
-      </section>
-
-      {/* Actions */}
-      <div className="bg-slate-50 border-t border-slate-100 p-6 flex justify-end gap-3">
+      <RequestNotes note={note} onNoteChange={setNote} />
+      {error && (
+        <p
+          role="alert"
+          className="mx-6 mb-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700"
+        >
+          {error}
+        </p>
+      )}
+      <div className="flex flex-wrap justify-end gap-3 border-t border-slate-100 bg-slate-50 p-6">
         <a
           href="/customer"
-          className="px-6 py-3 border border-slate-300 text-slate-600 rounded-xl font-semibold hover:bg-white transition"
+          className="rounded-xl border border-slate-300 px-5 py-3"
         >
           ยกเลิก
         </a>
-
         <button
           type="submit"
-          disabled={!selectedCompanionId}
-          className="px-8 py-3 bg-sky-600 text-white rounded-xl font-semibold hover:bg-sky-700 transition cursor-pointer disabled:bg-slate-300 disabled:cursor-not-allowed"
+          disabled={
+            submitting ||
+            !companion ||
+            !stats ||
+            !categoryId ||
+            !serviceDate ||
+            !startTime ||
+            !areaValid ||
+            !price
+          }
+          className="rounded-xl bg-sky-600 px-6 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
         >
-          ส่งคำขอใช้บริการ
+          {submitting ? "กำลังส่งคำขอ..." : "ส่งคำขอใช้บริการ"}
         </button>
       </div>
     </form>

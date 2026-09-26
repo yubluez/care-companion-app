@@ -1,4 +1,4 @@
-import type { RequestFilter, ServiceRequest } from "./RequestList";
+import type { RequestFilter, ServiceRequest } from "./types";
 
 type Props = {
   activeTab: RequestFilter;
@@ -41,7 +41,9 @@ export default function RequestTabs({
     {
       key: "cancelled",
       label: "ยกเลิก",
-      count: requests.filter((r) => r.status === "cancelled").length,
+      count: requests.filter((r) =>
+        ["cancelled", "rejected", "expired"].includes(r.status),
+      ).length,
     },
   ];
 

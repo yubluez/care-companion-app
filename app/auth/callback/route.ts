@@ -46,14 +46,13 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=user_not_found`);
   }
 
-  // 5. ดึง Role จาก Database โดยตรง
+  // 5. ดึง Profile จาก Database
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("role, full_name, phone")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
-  // หากไม่สามารถอ่านข้อมูลได้
   if (profileError) {
     console.error("Error fetching profile:", profileError);
 
@@ -64,20 +63,27 @@ export async function GET(request: Request) {
     );
   }
 
-  // 6. กำหนด Role จาก Database
-  const role = profile?.role;
+  // Account ใหม่
+  if (!profile) {
+    return NextResponse.redirect(`${origin}/onboarding/role`);
+  }
+
+  // มี profile แต่ยังไม่ได้เลือก role
+  if (!profile.role) {
+    return NextResponse.redirect(`${origin}/onboarding/role`);
+  }
+
+  const role = profile.role;
 
   let destination = "/onboarding/role";
 
   if (role === "customer") {
-    // Customer ยังกรอกข้อมูลไม่ครบ
     if (!profile.full_name || !profile.phone) {
       destination = "/onboarding/customer";
     } else {
       destination = "/customer";
     }
   } else if (role === "companion") {
-    // Companion เดี๋ยวเราจะทำ onboarding แยกต่อ
     destination = "/onboarding/companion";
   } else if (role === "admin") {
     destination = "/admin";

@@ -67,6 +67,7 @@ export default async function CompanionJobDetailPage({ params }: Props) {
         duration_minutes,
         destination_name,
         note,
+        meeting_detail,
         offered_fee,
         status,
         started_at,
@@ -218,14 +219,28 @@ export default async function CompanionJobDetailPage({ params }: Props) {
             </section>
 
             {/* Note */}
-            <section>
-              <h2 className="mb-3 font-bold text-slate-900">
-                รายละเอียดเพิ่มเติม
-              </h2>
+            <section className="space-y-4">
+              <h2 className="font-bold text-slate-900">รายละเอียดเพิ่มเติม</h2>
 
-              <div className="whitespace-pre-wrap rounded-xl bg-slate-50 p-4 text-slate-600">
-                {job.note || "ไม่มีรายละเอียดเพิ่มเติม"}
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="mb-2 text-sm text-slate-500">
+                  ข้อมูลเพิ่มเติมจากลูกค้า
+                </p>
+                <p className="whitespace-pre-wrap text-slate-700">
+                  {job.note || "ไม่มีรายละเอียดเพิ่มเติม"}
+                </p>
               </div>
+
+              {job.meeting_detail && (
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <p className="mb-2 text-sm text-slate-500">
+                    รายละเอียดจุดนัดพบ
+                  </p>
+                  <p className="whitespace-pre-wrap text-slate-700">
+                    {job.meeting_detail}
+                  </p>
+                </div>
+              )}
             </section>
 
             {/* Fee */}

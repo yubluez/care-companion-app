@@ -1,24 +1,7 @@
 import Link from "next/link";
 import StatusBadge from "@/components/companion/dashboard/StatusBadge";
 
-export type CompanionRequest = {
-  id: string;
-  serviceDate: string;
-  startTime: string;
-  durationMinutes: number | null;
-  destinationName: string | null;
-  offeredFee: number | null;
-  status: string;
-
-  customer: {
-    fullName: string | null;
-    avatarUrl: string | null;
-  } | null;
-
-  category: {
-    name: string;
-  } | null;
-};
+import type { CompanionRequest } from "./types";
 
 type Props = {
   request: CompanionRequest;

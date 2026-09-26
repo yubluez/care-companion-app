@@ -32,9 +32,9 @@ function LoginForm() {
         // 2. ดึง Role จาก Database
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("role")
+          .select("role, full_name, phone")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
 
         if (profileError) {
           console.error("Error fetching profile:", profileError);
@@ -46,16 +46,26 @@ function LoginForm() {
           return;
         }
 
-        // 3. ตรวจสอบ Role และ Redirect
-        const role = profile?.role;
+        // Account ใหม่ หรือยังไม่ได้เลือก Role
+        if (!profile || !profile.role) {
+          router.replace("/onboarding/role");
+          return;
+        }
+
+        const role = profile.role;
 
         if (role === "customer") {
-          router.replace("/customer");
+          if (!profile.full_name || !profile.phone) {
+            router.replace("/onboarding/customer");
+          } else {
+            router.replace("/customer");
+          }
+
           return;
         }
 
         if (role === "companion") {
-          router.replace("/companion");
+          router.replace("/onboarding/companion");
           return;
         }
 
@@ -64,7 +74,6 @@ function LoginForm() {
           return;
         }
 
-        // 4. ยังไม่มี Role ให้ไปหน้าเลือก Role
         router.replace("/onboarding/role");
       } catch (err) {
         console.error("Check auth error:", err);

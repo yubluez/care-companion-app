@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getUser, signOut } from "@/lib/actions/auth";
 import { createClient } from "@/lib/supabase/server";
-import ProfileEditor from "@/components/customer/ProfileEditor";
+import ProfileEditor from "@/components/shared/ProfileEditor";
 
 export default async function Page() {
   const user = await getUser();

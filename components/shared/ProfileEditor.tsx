@@ -140,18 +140,20 @@ export default function ProfileEditor({
         newAvatarUrl = publicUrlData.publicUrl;
       }
 
-      const { error: updateError } = await supabase
+      const { data: updatedProfile, error: updateError } = await supabase
         .from("profiles")
         .update({
           full_name: trimmedName,
           phone: trimmedPhone,
           avatar_url: newAvatarUrl || null,
         })
-        .eq("id", userId);
+        .eq("id", userId)
+        .select("id")
+        .maybeSingle();
 
-      if (updateError) {
+      if (updateError || !updatedProfile) {
         console.error("Update profile error:", updateError);
-        setError("ไม่สามารถบันทึกข้อมูลได้");
+        setError("ไม่สามารถบันทึกข้อมูลได้ กรุณาตรวจสอบสิทธิ์การแก้ไขโปรไฟล์");
         return;
       }
 
@@ -186,13 +188,7 @@ export default function ProfileEditor({
     <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between pb-5 border-b border-slate-100">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900">ข้อมูลส่วนตัว</h2>
-
-          <p className="text-sm text-slate-500 mt-0.5">
-            ข้อมูลบัญชีและช่องทางการติดต่อสำหรับการใช้งาน Care Companion
-          </p>
-        </div>
+        <h2 className="text-xl font-bold text-slate-900">ข้อมูลส่วนตัว</h2>
 
         {!isEditing ? (
           <button
