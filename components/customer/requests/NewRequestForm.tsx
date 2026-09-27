@@ -14,6 +14,7 @@ import PricingSummary from "@/components/customer/requests/pricing/PricingSummar
 import { calculateServicePrice } from "@/lib/pricing/servicePricing";
 import { createServiceRequest } from "@/lib/actions/customerRequests";
 import { createClient } from "@/lib/supabase/client";
+import Swal from "sweetalert2";
 
 import SelectedCompanion from "@/components/customer/requests/SelectedCompanion";
 
@@ -358,8 +359,24 @@ export default function NewRequestForm() {
       });
       if (!result.success) {
         setError(result.error ?? "ไม่สามารถส่งคำขอได้");
+        await Swal.fire({
+          icon: "error",
+          title: "ไม่สามารถส่งคำขอได้",
+          text: result.error ?? "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+          confirmButtonColor: "#0284c7",
+          confirmButtonText: "ตกลง",
+        });
         return;
       }
+
+      await Swal.fire({
+        icon: "success",
+        title: "ส่งคำขอสำเร็จ",
+        text: "ส่งคำขอใช้บริการเรียบร้อยแล้ว รอ Companion ตอบรับคำขอ",
+        confirmButtonColor: "#0284c7",
+        confirmButtonText: "ตกลง",
+      });
+
       // The server recalculates the route. Its final fee is authoritative.
       router.push("/customer/requests");
       router.refresh();
@@ -421,7 +438,7 @@ export default function NewRequestForm() {
       <div className="flex flex-wrap justify-end gap-3 border-t border-slate-100 bg-slate-50 p-6">
         <a
           href="/customer"
-          className="rounded-xl border border-slate-300 px-5 py-3"
+          className="cursor-pointer rounded-xl border border-slate-300 px-5 py-3 hover:bg-slate-100 transition text-slate-700 font-semibold"
         >
           ยกเลิก
         </a>
@@ -437,7 +454,7 @@ export default function NewRequestForm() {
             !areaValid ||
             !price
           }
-          className="rounded-xl bg-sky-600 px-6 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="cursor-pointer rounded-xl bg-sky-600 px-6 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300 shadow-sm"
         >
           {submitting ? "กำลังส่งคำขอ..." : "ส่งคำขอใช้บริการ"}
         </button>

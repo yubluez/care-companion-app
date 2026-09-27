@@ -1,10 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function CustomerNavLinks() {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  // รอให้ Component ทำงานบน Browser ก่อน
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navItems = [
     {
@@ -26,6 +33,9 @@ export default function CustomerNavLinks() {
   ];
 
   const checkActive = (href: string) => {
+    // ยังไม่ตรวจสอบ Active ระหว่าง Hydration
+    if (!mounted) return false;
+
     // หน้าหลัก
     if (href === "/customer") {
       return pathname === "/customer";
@@ -36,7 +46,7 @@ export default function CustomerNavLinks() {
       return pathname === "/customer/requests/new";
     }
 
-    // คำขอของฉัน + หน้า detail
+    // คำขอของฉัน + หน้า Detail
     if (href === "/customer/requests") {
       return (
         pathname === "/customer/requests" ||
@@ -45,11 +55,11 @@ export default function CustomerNavLinks() {
       );
     }
 
-    return pathname.startsWith(href);
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   return (
-    <nav className="flex items-center gap-5">
+    <nav className="flex items-center gap-3">
       {navItems.map((item) => {
         const isActive = checkActive(item.href);
 
@@ -58,11 +68,11 @@ export default function CustomerNavLinks() {
             key={item.href}
             href={item.href}
             className={`
-              px-4 py-2 rounded-xl border-2 transition
+              px-4 py-2 rounded-xl transition cursor-pointer
               ${
                 isActive
-                  ? "border-sky-600 text-sky-600 bg-sky-50 font-semibold"
-                  : "border-transparent text-slate-600 hover:bg-sky-600 hover:text-white"
+                  ? "text-sky-600 bg-sky-100 font-semibold"
+                  : "text-slate-600 hover:bg-blue-50 hover:text-sky-600"
               }
             `}
           >

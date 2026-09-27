@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 
 export default function RequestDetailPage({ params }: { params: { id: string } }) {
   // จำลองสถานะคำขอ: 'pending' | 'accepted' | 'in_progress' | 'completed'
@@ -36,8 +37,29 @@ export default function RequestDetailPage({ params }: { params: { id: string } }
 
         {status === 'pending' && (
           <button
-            onClick={() => alert('ยกเลิกคำขอเรียบร้อยแล้ว')}
-            className="w-full bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold py-3 rounded-2xl border border-rose-200 transition"
+            onClick={async () => {
+              const res = await Swal.fire({
+                title: 'ยืนยันการยกเลิกคำขอ?',
+                text: 'คุณต้องการยกเลิกคำขอนี้ใช่หรือไม่?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยันยกเลิก',
+                cancelButtonText: 'กลับ',
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#64748b',
+                reverseButtons: true,
+              });
+
+              if (res.isConfirmed) {
+                await Swal.fire({
+                  title: 'ยกเลิกคำขอเรียบร้อยแล้ว',
+                  icon: 'success',
+                  confirmButtonColor: '#0284c7',
+                  confirmButtonText: 'ตกลง',
+                });
+              }
+            }}
+            className="w-full cursor-pointer bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold py-3 rounded-2xl border border-rose-200 transition"
           >
             ยกเลิกคำขอ
           </button>

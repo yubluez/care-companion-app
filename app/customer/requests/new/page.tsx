@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import NewRequestForm from "@/components/customer/requests/NewRequestForm";
 
 export default function NewRequestPage() {
@@ -14,7 +15,15 @@ export default function NewRequestPage() {
           </p>
         </div>
 
-        <NewRequestForm />
+        <Suspense
+          fallback={
+            <div className="flex h-64 items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-sky-600 border-t-transparent" />
+            </div>
+          }
+        >
+          <NewRequestForm />
+        </Suspense>
       </div>
     </main>
   );

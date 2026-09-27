@@ -1,76 +1,78 @@
-import React from "react";
+import Link from "next/link";
+import { ClipboardList, Search, ArrowRight } from "lucide-react";
 
-export default function CustomerActions() {
+type Props = {
+  pendingCount: number;
+  activeCount: number;
+};
+
+export default function CustomerActions({ pendingCount, activeCount }: Props) {
   return (
-    <div>
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        {/* Find Companion */}
-        <div
-          className="bg-gradient-to-br from-sky-500 to-blue-600
-                          text-white rounded-3xl p-8 shadow-sm"
-        >
-          <div className="text-4xl mb-5">🤝</div>
+    <section className="grid gap-5 md:grid-cols-2">
+      {/* ค้นหา Companion */}
+      <div className="flex flex-col justify-between rounded-3xl bg-gradient-to-br from-sky-500 to-blue-700 p-7 text-white shadow-sm">
+        <div>
+          <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20">
+            <Search size={25} />
+          </div>
 
-          <h2 className="text-2xl font-bold mb-2">ต้องการเพื่อนร่วมทาง?</h2>
+          <h2 className="text-2xl font-bold">ต้องการเพื่อนร่วมทาง?</h2>
 
-          <p className="text-sky-100 mb-7">
-            ค้นหาผู้ร่วมเดินทางที่เหมาะสม เพื่อช่วยคุณไปโรงพยาบาล ธนาคาร
-            หรือทำธุระต่าง ๆ
+          <p className="mt-3 max-w-md text-sm leading-6 text-sky-50">
+            ค้นหา Companion เพื่อช่วยเหลือและอำนวยความสะดวก
+            ในการเดินทางไปทำธุระต่าง ๆ
           </p>
-
-          <a
-            href="/customer/compsearch"
-            className="inline-block bg-white text-sky-700
-                         font-semibold px-5 py-3 rounded-xl
-                         hover:bg-sky-50 transition"
-          >
-            ค้นหาเพื่อนร่วมทาง →
-          </a>
         </div>
 
-        {/* My Requests */}
-        <div
-          className="bg-white border border-slate-200
-                          rounded-3xl p-8 shadow-sm"
+        <Link
+          href="/customer/compsearch"
+          className="mt-7 inline-flex w-fit cursor-pointer items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-blue-700 transition hover:bg-sky-50 shadow-sm"
         >
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <p className="text-slate-500 text-sm">คำขอของฉัน</p>
+          ค้นหา Companion
+          <ArrowRight size={17} />
+        </Link>
+      </div>
 
-              <h2 className="text-2xl font-bold text-slate-800 mt-1">
-                ติดตามคำขอของคุณ
+      {/* สรุปคำขอ */}
+      <div className="flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+        <div>
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-slate-500">ภาพรวมการใช้บริการ</p>
+
+              <h2 className="mt-1 text-2xl font-bold text-slate-900">
+                คำขอของฉัน
               </h2>
             </div>
 
-            <div
-              className="w-12 h-12 rounded-2xl
-                              bg-sky-100 flex items-center
-                              justify-center text-2xl"
-            >
-              📋
+            <div className="rounded-2xl bg-sky-50 p-3 text-sky-600">
+              <ClipboardList size={25} />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-amber-50 rounded-2xl p-4">
-              <p className="text-2xl font-bold text-amber-600">2</p>
-              <p className="text-sm text-slate-500">กำลังรอ</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-2xl bg-amber-50 p-5">
+              <p className="text-3xl font-bold text-amber-600">
+                {pendingCount}
+              </p>
+              <p className="mt-2 text-sm text-slate-600">รอตอบรับ</p>
             </div>
 
-            <div className="bg-sky-50 rounded-2xl p-4">
-              <p className="text-2xl font-bold text-sky-600">1</p>
-              <p className="text-sm text-slate-500">กำลังดำเนินการ</p>
+            <div className="rounded-2xl bg-sky-50 p-5">
+              <p className="text-3xl font-bold text-sky-600">{activeCount}</p>
+              <p className="mt-2 text-sm text-slate-600">กำลังดำเนินการ</p>
             </div>
           </div>
-
-          <a
-            href="/customer/requests"
-            className="text-sky-600 font-semibold hover:text-sky-700"
-          >
-            ดูคำขอทั้งหมด →
-          </a>
         </div>
-      </section>
-    </div>
+
+        <Link
+          href="/customer/requests"
+          className="mt-7 inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-sky-600 hover:text-sky-700"
+        >
+          ดูคำขอทั้งหมด
+          <ArrowRight size={17} />
+        </Link>
+      </div>
+    </section>
   );
 }

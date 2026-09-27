@@ -54,7 +54,7 @@ export default function CompanionProfileModal({ companion, onClose }: Props) {
             <button
               type="button"
               onClick={() => setView("profile")}
-              className="font-semibold text-sky-600 hover:text-sky-700"
+              className="cursor-pointer font-semibold text-sky-600 hover:text-sky-700"
             >
               ← กลับไปหน้าโปรไฟล์
             </button>
@@ -64,7 +64,7 @@ export default function CompanionProfileModal({ companion, onClose }: Props) {
             type="button"
             aria-label="ปิดโปรไฟล์"
             onClick={onClose}
-            className="h-9 w-9 rounded-full text-xl hover:bg-slate-100"
+            className="cursor-pointer h-9 w-9 rounded-full text-xl hover:bg-slate-100 flex items-center justify-center"
           >
             ×
           </button>
@@ -96,10 +96,6 @@ export default function CompanionProfileModal({ companion, onClose }: Props) {
                       ? `⭐ ${companion.rating.toFixed(1)} (${companion.reviews} รีวิว)`
                       : "ยังไม่มีรีวิว"}
                   </p>
-
-                  <span className="mt-2 inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-600">
-                    ผ่านการอนุมัติ
-                  </span>
                 </div>
               </div>
 
@@ -111,6 +107,72 @@ export default function CompanionProfileModal({ companion, onClose }: Props) {
                 </p>
               </div>
 
+              <div className="border-t border-slate-100 pt-5">
+                <h3 className="mb-2 font-bold text-slate-900">
+                  ประสบการณ์และทักษะ
+                </h3>
+                <p className="whitespace-pre-wrap text-slate-700">
+                  {companion.experience || "ยังไม่ได้ระบุ"}
+                </p>
+              </div>
+              <div className="border-t border-slate-100 pt-5">
+                <h3 className="mb-2 font-bold text-slate-900">
+                  พื้นที่ให้บริการ
+                </h3>
+                {companion.serviceAreas?.length ? (
+                  <div className="flex flex-wrap gap-2">
+                    {companion.serviceAreas.map((area, index) => (
+                      <span
+                        key={`${area.province}-${area.district}-${index}`}
+                        className="rounded-full bg-sky-50 px-3 py-1 text-sm text-sky-800"
+                      >
+                        {area.district}, {area.province}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500">
+                    ยังไม่มีข้อมูลพื้นที่ให้บริการ
+                  </p>
+                )}
+              </div>
+              <div className="border-t border-slate-100 pt-5">
+                <h3 className="mb-2 font-bold text-slate-900">
+                  วันและเวลาที่สะดวก
+                </h3>
+                {companion.availability?.length ? (
+                  <div className="space-y-2">
+                    {companion.availability.map((slot, index) => (
+                      <p
+                        key={`${slot.dayOfWeek}-${slot.startTime}-${index}`}
+                        className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                      >
+                        {(
+                          {
+                            1: "จันทร์",
+                            2: "อังคาร",
+                            3: "พุธ",
+                            4: "พฤหัสบดี",
+                            5: "ศุกร์",
+                            6: "เสาร์",
+                            7: "อาทิตย์",
+                          } as Record<number, string>
+                        )[slot.dayOfWeek] ?? `วันที่ ${slot.dayOfWeek}`}{" "}
+                        : {slot.startTime.slice(0, 5)}–
+                        {slot.endTime.slice(0, 5)} น.
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500">
+                    ยังไม่มีข้อมูลตารางเวลา
+                  </p>
+                )}
+                <p className="mt-2 text-xs text-slate-500">
+                  ตารางเวลาประจำ ไม่ใช่การยืนยันว่าว่างในวันที่เลือก
+                </p>
+              </div>
+
               <div className="border-t border-slate-100 pt-6">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-slate-900">รีวิวจากลูกค้า</h3>
@@ -119,7 +181,7 @@ export default function CompanionProfileModal({ companion, onClose }: Props) {
                     <button
                       type="button"
                       onClick={() => setView("reviews")}
-                      className="text-sm font-semibold text-sky-600 hover:text-sky-700"
+                      className="cursor-pointer text-sm font-semibold text-sky-600 hover:text-sky-700"
                     >
                       ดูทั้งหมด ({companion.reviews}) →
                     </button>
@@ -145,7 +207,7 @@ export default function CompanionProfileModal({ companion, onClose }: Props) {
               href={`/customer/requests/new?companion=${encodeURIComponent(
                 companion.id,
               )}`}
-              className="block w-full rounded-xl bg-sky-600 py-3 text-center font-semibold text-white transition hover:bg-sky-700"
+              className="cursor-pointer block w-full rounded-xl bg-sky-600 py-3 text-center font-semibold text-white transition hover:bg-sky-700 shadow-sm"
             >
               ส่งคำขอใช้บริการ
             </Link>

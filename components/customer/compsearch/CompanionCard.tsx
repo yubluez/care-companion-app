@@ -23,15 +23,9 @@ export default function CompanionCard({ companion, onViewProfile }: Props) {
         )}
 
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-3">
-            <h3 className="text-lg font-bold text-slate-900">
-              {companion.name}
-            </h3>
-
-            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">
-              ผ่านการอนุมัติ
-            </span>
-          </div>
+          <h3 className="text-lg font-bold text-slate-900">
+            {companion.name}
+          </h3>
 
           <p className="mt-2 text-sm text-slate-500">
             {companion.reviews > 0 ? (
@@ -57,7 +51,7 @@ export default function CompanionCard({ companion, onViewProfile }: Props) {
       <button
         type="button"
         onClick={onViewProfile}
-        className="shrink-0 rounded-xl border border-sky-300 px-5 py-2.5 font-semibold text-sky-600 transition hover:bg-sky-50"
+        className="shrink-0 cursor-pointer rounded-xl border border-sky-300 px-5 py-2.5 font-semibold text-sky-600 transition hover:bg-sky-50 shadow-sm"
       >
         ดูโปรไฟล์
       </button>

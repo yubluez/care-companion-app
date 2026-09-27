@@ -100,7 +100,7 @@ export default function SelectedCompanion({
 
           <Link
             href="/customer/compsearch"
-            className="mt-4 inline-flex items-center justify-center rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700"
+            className="mt-4 inline-flex items-center justify-center rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 cursor-pointer shadow-sm"
           >
             ค้นหา Companion
           </Link>

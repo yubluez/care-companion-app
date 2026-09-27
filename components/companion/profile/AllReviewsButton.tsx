@@ -18,7 +18,7 @@ export default function AllReviewsButton({ companionId, totalReviews }: Props) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="text-sm font-semibold text-sky-600 transition hover:bg-sky-50 cursor-pointer"
+        className="text-sm font-semibold text-violet-600 transition hover:bg-violet-50 cursor-pointer"
       >
         ดูรีวิวทั้งหมด ({totalReviews})
       </button>

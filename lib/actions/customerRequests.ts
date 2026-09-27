@@ -214,3 +214,88 @@ export async function createServiceRequest(input: Input) {
     };
   }
 }
+
+// Customer ยกเลิกคำขอได้เฉพาะสถานะ pending และ accepted
+export async function cancelCustomerRequest(requestId: string) {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: "กรุณาเข้าสู่ระบบ" };
+    }
+
+    // ตรวจสอบรูปแบบ UUID
+    const uuidPattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidPattern.test(requestId)) {
+      return { success: false, error: "รหัสคำขอไม่ถูกต้อง" };
+    }
+
+    // ตรวจสอบว่าเป็น Customer
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || profile?.role !== "customer") {
+      return {
+        success: false,
+        error: "เฉพาะ Customer เท่านั้นที่ยกเลิกคำขอได้",
+      };
+    }
+
+    // ตรวจสอบเจ้าของคำขอและสถานะล่าสุดพร้อมกับการอัปเดต
+    const { data, error } = await supabase
+      .from("service_requests")
+      .update({ status: "cancelled" })
+      .eq("id", requestId)
+      .eq("customer_id", user.id)
+      .in("status", ["pending", "accepted"])
+      .select("id")
+      .maybeSingle();
+
+    if (error) {
+      console.error("Cancel customer request error:", error);
+
+      return {
+        success: false,
+        error: "ยกเลิกคำขอไม่สำเร็จ กรุณาตรวจสอบสิทธิ์ฐานข้อมูล",
+      };
+    }
+
+    if (!data) {
+      return {
+        success: false,
+        error: "ไม่พบคำขอที่ยกเลิกได้ หรือสถานะคำขอมีการเปลี่ยนแปลงแล้ว",
+      };
+    }
+
+    // อัปเดตข้อมูลหน้าที่เกี่ยวข้อง
+    for (const path of [
+      "/customer",
+      "/customer/requests",
+      "/companion",
+      "/companion/requests",
+      "/admin",
+      "/admin/requests",
+    ]) {
+      revalidatePath(path);
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Cancel customer request unexpected error:", error);
+
+    return {
+      success: false,
+      error: "เกิดข้อผิดพลาด กรุณาลองใหม่",
+    };
+  }
+}

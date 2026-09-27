@@ -41,18 +41,10 @@ export default function CompanionNavbar() {
         {/* Logo */}
         <Link
           href="/companion"
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 cursor-pointer"
           onClick={() => setMobileOpen(false)}
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-600 font-bold text-white">
-            C
-          </div>
-
-          <div className="leading-tight">
-            <p className="font-bold text-slate-900">Care Companion</p>
-
-            <p className="text-[11px] text-slate-400">Companion</p>
-          </div>
+          <p className="font-bold text-violet-700 text-2xl">Care Companion</p>
         </Link>
 
         {/* Desktop */}
@@ -64,10 +56,10 @@ export default function CompanionNavbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                className={`rounded-xl px-4 py-2 text-sm font-semibold transition cursor-pointer ${
                   active
-                    ? "bg-sky-50 text-sky-700"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-violet-50 text-violet-700"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-violet-900"
                 }`}
               >
                 {item.label}
@@ -80,7 +72,7 @@ export default function CompanionNavbar() {
         <button
           type="button"
           onClick={() => setMobileOpen((current) => !current)}
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-xl text-slate-600 md:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-xl text-slate-600 md:hidden cursor-pointer"
           aria-label="เปิดเมนู"
         >
           {mobileOpen ? "✕" : "☰"}
@@ -99,9 +91,9 @@ export default function CompanionNavbar() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`block rounded-xl px-4 py-3 text-sm font-semibold ${
+                  className={`block rounded-xl px-4 py-3 text-sm font-semibold cursor-pointer ${
                     active
-                      ? "bg-sky-50 text-sky-700"
+                      ? "bg-violet-50 text-violet-700"
                       : "text-slate-600 hover:bg-slate-50"
                   }`}
                 >

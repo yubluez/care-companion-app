@@ -16,12 +16,12 @@ const STATUS_CONFIG: Record<
 
   accepted: {
     label: "รับงานแล้ว",
-    className: "bg-sky-100 text-sky-700",
+    className: "bg-violet-100 text-violet-700",
   },
 
   in_progress: {
     label: "กำลังให้บริการ",
-    className: "bg-violet-100 text-violet-700",
+    className: "bg-purple-100 text-purple-700",
   },
 
   completed: {
@@ -36,6 +36,11 @@ const STATUS_CONFIG: Record<
 
   cancelled: {
     label: "ยกเลิก",
+    className: "bg-slate-100 text-slate-600",
+  },
+
+  expired: {
+    label: "หมดอายุ",
     className: "bg-slate-100 text-slate-600",
   },
 };

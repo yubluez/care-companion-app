@@ -190,7 +190,7 @@ export default function TravelSection({ value, onChange }: Props) {
                   },
                 })
               }
-              className="rounded-xl border border-sky-300 px-4 py-2 text-sm font-semibold text-sky-700 hover:bg-sky-50"
+              className="cursor-pointer rounded-xl border border-sky-300 px-4 py-2 text-sm font-semibold text-sky-700 hover:bg-sky-50 transition shadow-sm"
             >
               ใช้ตำแหน่งเดียวกับจุดรับ
             </button>

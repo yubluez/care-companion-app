@@ -38,7 +38,7 @@ export default function UpcomingJobs({ jobs }: Props) {
 
         <Link
           href="/companion/jobs"
-          className="text-sm font-semibold text-sky-600 hover:text-sky-700 whitespace-nowrap"
+          className="text-sm font-semibold text-violet-600 hover:text-violet-700 whitespace-nowrap cursor-pointer"
         >
           ดูทั้งหมด
         </Link>
@@ -53,15 +53,8 @@ export default function UpcomingJobs({ jobs }: Props) {
           </h3>
 
           <p className="text-sm text-slate-400 mt-1">
-            เมื่อคุณตอบรับงาน งานจะแสดงที่นี่
+            เมื่อคุณตอบรับงาน ตารางงานจะแสดงที่นี่
           </p>
-
-          <Link
-            href="/companion/requests"
-            className="inline-flex mt-5 px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold rounded-xl transition"
-          >
-            ดูคำของาน
-          </Link>
         </div>
       ) : (
         <div className="divide-y divide-slate-100">
@@ -69,7 +62,7 @@ export default function UpcomingJobs({ jobs }: Props) {
             <Link
               key={job.id}
               href={`/companion/jobs/${job.id}`}
-              className="block p-5 hover:bg-slate-50 transition"
+              className="block p-5 hover:bg-slate-50 transition cursor-pointer"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-3">

@@ -40,10 +40,10 @@ export default function ProfileHeader({
           <img
             src={avatarUrl}
             alt={fullName}
-            className="w-24 h-24 rounded-full object-cover border-4 border-sky-100"
+            className="w-24 h-24 rounded-full object-cover border-4 border-violet-100"
           />
         ) : (
-          <div className="w-24 h-24 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-3xl font-bold">
+          <div className="w-24 h-24 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-3xl font-bold">
             {fullName.charAt(0).toUpperCase()}
           </div>
         )}
@@ -52,7 +52,7 @@ export default function ProfileHeader({
           <h2 className="text-2xl font-bold text-slate-900">{fullName}</h2>
 
           <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-2">
-            <span className="bg-sky-100 text-sky-700 text-sm font-semibold px-3 py-1 rounded-full">
+            <span className="bg-violet-100 text-violet-700 text-sm font-semibold px-3 py-1 rounded-full">
               Companion
             </span>
 

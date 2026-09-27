@@ -113,7 +113,11 @@ export function useCompanionOnboarding() {
         const application = await getCompanionApplication(supabase, user.id);
 
         if (application) {
-          router.replace("/onboarding/companion/status");
+          if (application.verification_status === "approved") {
+            router.replace("/companion");
+          } else {
+            router.replace("/onboarding/companion/status");
+          }
           return;
         }
 

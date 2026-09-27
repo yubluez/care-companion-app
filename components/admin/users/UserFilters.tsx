@@ -29,7 +29,7 @@ export default function UserFilters({ role, search, counts }: Props) {
     <>
       {/* Filter */}
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-6 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 flex items-center gap-1.5 overflow-x-auto">
         <FilterButton
           href={buildUrl("all")}
           active={role === "all"}
@@ -63,12 +63,12 @@ export default function UserFilters({ role, search, counts }: Props) {
             name="search"
             defaultValue={search}
             placeholder="ค้นหาชื่อหรือเบอร์โทร..."
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400"
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
           />
 
           <button
             type="submit"
-            className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 cursor-pointer shadow-sm"
           >
             ค้นหา
           </button>
@@ -78,7 +78,7 @@ export default function UserFilters({ role, search, counts }: Props) {
               href={
                 role === "all" ? "/admin/users" : `/admin/users?role=${role}`
               }
-              className="flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+              className="flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 cursor-pointer"
             >
               ล้าง
             </Link>
@@ -103,17 +103,17 @@ function FilterButton({
   return (
     <Link
       href={href}
-      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold whitespace-nowrap transition cursor-pointer ${
         active
-          ? "bg-slate-900 text-white"
-          : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+          ? "bg-emerald-600 text-white shadow-sm"
+          : "text-slate-600 hover:bg-white hover:text-emerald-700"
       }`}
     >
       {label}
 
       <span
-        className={`rounded-full px-2 py-0.5 text-xs ${
-          active ? "bg-white/15 text-white" : "bg-slate-100 text-slate-500"
+        className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+          active ? "bg-white/20 text-white" : "bg-slate-200/80 text-slate-600"
         }`}
       >
         {count}

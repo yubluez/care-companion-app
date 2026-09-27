@@ -11,6 +11,9 @@ export type CompanionJob = {
   durationMinutes: number | null;
 
   destinationName: string | null;
+  originName?: string | null;
+  note?: string | null;
+  meetingDetail?: string | null;
 
   offeredFee: number | null;
 
@@ -32,70 +35,72 @@ type Props = {
 
 export default function JobCard({ job }: Props) {
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-      <div className="flex flex-col justify-between gap-5 sm:flex-row">
-        <div className="flex gap-4">
-          {/* Customer Avatar */}
-
-          {job.customer?.avatarUrl ? (
-            <img
-              src={job.customer.avatarUrl}
-              alt={job.customer.fullName || "ลูกค้า"}
-              className="h-12 w-12 shrink-0 rounded-full object-cover"
-            />
-          ) : (
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-100 font-bold text-slate-500">
-              {(job.customer?.fullName || "C").charAt(0).toUpperCase()}
-            </div>
-          )}
-
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="font-bold text-slate-900">
-                {job.category?.name || "บริการ Companion"}
-              </h2>
-
-              <StatusBadge status={job.status} />
-            </div>
-
-            <p className="mt-1 text-sm text-slate-500">
-              ลูกค้า: {job.customer?.fullName || "ไม่ระบุชื่อ"}
-            </p>
-
-            <div className="mt-4 space-y-1 text-sm text-slate-600">
-              <p>{formatDate(job.serviceDate)}</p>
-
-              <p>
-                {formatTime(job.startTime)}
-
-                {job.durationMinutes != null && (
-                  <> · {formatDuration(job.durationMinutes)}</>
-                )}
-              </p>
-
-              {job.destinationName && <p>จุดหมาย: {job.destinationName}</p>}
-            </div>
-          </div>
+    <article className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-violet-200 hover:shadow-sm transition">
+      {/* Header */}
+      <div className="flex justify-between gap-4">
+        <div>
+          <p className="text-xs text-slate-400 mb-1">#{job.id}</p>
+          <h2 className="text-lg font-bold text-slate-900">
+            {job.category?.name || "บริการ Companion"}
+          </h2>
         </div>
 
-        <div className="flex flex-col items-start sm:items-end">
-          {job.offeredFee != null && (
-            <>
-              <p className="text-xs text-slate-400">ค่าบริการ</p>
-
-              <p className="text-xl font-bold text-emerald-600">
-                ฿{job.offeredFee.toLocaleString("th-TH")}
-              </p>
-            </>
-          )}
-
-          <Link
-            href={`/companion/jobs/${job.id}`}
-            className="mt-4 inline-flex rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700"
-          >
-            ดูรายละเอียด
-          </Link>
+        <div>
+          <StatusBadge status={job.status} />
         </div>
+      </div>
+
+      {/* Information */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5 text-sm">
+        <div>
+          <p className="text-slate-400 mb-1">วันที่และเวลา</p>
+          <p className="font-medium text-slate-700">
+            📅 {formatDate(job.serviceDate)} เวลา {formatTime(job.startTime)} น.
+          </p>
+        </div>
+
+        <div>
+          <p className="text-slate-400 mb-1">ระยะเวลา</p>
+          <p className="font-medium text-slate-700">
+            ⏱ {job.durationMinutes != null ? formatDuration(job.durationMinutes) : "-"}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-slate-400 mb-1">ลูกค้า</p>
+          <p className="font-medium text-slate-700">
+            👤 {job.customer?.fullName || "ไม่ระบุชื่อ"}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-slate-400 mb-1">ค่าบริการ</p>
+          <p className="font-bold text-lg text-emerald-600">
+            {job.offeredFee != null
+              ? `฿${job.offeredFee.toLocaleString("th-TH", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`
+              : "ยังไม่มีข้อมูลราคา"}
+          </p>
+        </div>
+      </div>
+
+      {/* Route & Action */}
+      <div className="mt-5 pt-5 border-t border-slate-100 flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs text-slate-400 mb-1">จุดหมาย</p>
+          <p className="text-sm font-medium text-slate-700">
+            📍 {job.destinationName || "ไม่ระบุจุดหมาย"}
+          </p>
+        </div>
+
+        <Link
+          href={`/companion/jobs/${job.id}`}
+          className="border border-violet-300 text-violet-600 hover:bg-violet-600 hover:text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition whitespace-nowrap cursor-pointer"
+        >
+          ดูรายละเอียด
+        </Link>
       </div>
     </article>
   );
@@ -106,15 +111,14 @@ function formatDate(date: string) {
 
   return new Intl.DateTimeFormat("th-TH", {
     day: "numeric",
-    month: "long",
+    month: "short",
     year: "numeric",
   }).format(new Date(`${date}T00:00:00`));
 }
 
 function formatTime(time: string) {
   if (!time) return "-";
-
-  return `${time.slice(0, 5)} น.`;
+  return time.slice(0, 5);
 }
 
 function formatDuration(minutes: number) {

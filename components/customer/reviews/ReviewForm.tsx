@@ -60,8 +60,7 @@ export default function ReviewForm({ onSubmit, onCancel }: Props) {
             onClick={() => setRating(star)}
             aria-label={`ให้ ${star} ดาว`}
             aria-pressed={rating === star}
-            className="text-4xl transition hover:scale-110
-                       disabled:cursor-not-allowed"
+            className="text-4xl transition hover:scale-110 cursor-pointer disabled:cursor-not-allowed"
           >
             <span
               className={
@@ -118,8 +117,8 @@ export default function ReviewForm({ onSubmit, onCancel }: Props) {
           type="button"
           onClick={onCancel}
           disabled={submitting}
-          className="flex-1 rounded-xl border
-                     border-slate-200 py-3 font-semibold"
+          className="flex-1 cursor-pointer rounded-xl border
+                     border-slate-200 py-3 font-semibold hover:bg-slate-50 transition"
         >
           ยกเลิก
         </button>
@@ -127,9 +126,9 @@ export default function ReviewForm({ onSubmit, onCancel }: Props) {
         <button
           type="submit"
           disabled={rating === 0 || submitting}
-          className="flex-1 rounded-xl bg-sky-600
+          className="flex-1 cursor-pointer rounded-xl bg-sky-600
                      py-3 font-semibold text-white
-                     hover:bg-sky-700
+                     hover:bg-sky-700 transition
                      disabled:cursor-not-allowed
                      disabled:opacity-50"
         >

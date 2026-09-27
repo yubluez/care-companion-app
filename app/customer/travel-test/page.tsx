@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Swal from "sweetalert2";
 
 import TravelSection from "@/components/customer/requests/travel/TravelSection";
 import {
@@ -99,13 +100,20 @@ export default function TravelTestPage() {
           console.log("Route distances:", distances);
           console.log("Pricing:", price);
 
-          alert(
-            `ข้อมูลครบถ้วน\n` +
-              `ระยะทางรวม: ${price.totalDistanceKm.toFixed(2)} กม.\n` +
-              `ค่าบริการ: ${price.totalFee.toFixed(2)} บาท`,
-          );
+          Swal.fire({
+            title: "ข้อมูลครบถ้วน",
+            html: `
+              <div style="text-align: left; font-size: 14px; line-height: 1.6;">
+                <p><strong>ระยะทางรวม:</strong> ${price.totalDistanceKm.toFixed(2)} กม.</p>
+                <p><strong>ค่าบริการรวม:</strong> ${price.totalFee.toFixed(2)} บาท</p>
+              </div>
+            `,
+            icon: "success",
+            confirmButtonColor: "#0284c7",
+            confirmButtonText: "ตกลง",
+          });
         }}
-        className="rounded-xl bg-sky-600 px-6 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
+        className="cursor-pointer rounded-xl bg-sky-600 px-6 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300 shadow-sm"
       >
         ทดสอบข้อมูลการเดินทางและราคา
       </button>

@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import CompanionCard from "@/components/customer/compsearch/CompanionCard";
-import CompanionFilter from "@/components/customer/compsearch/CompanionFilter";
+import CompanionFilter, {
+  emptyFilters,
+  type SearchFilters,
+  type AreaOption,
+} from "@/components/customer/compsearch/CompanionFilter";
 import CompanionProfileModal from "@/components/customer/compsearch/CompanionProfileModal";
 
 export type Companion = {
@@ -11,18 +15,27 @@ export type Companion = {
   name: string;
   avatar: string;
   bio: string;
+  experience?: string;
+  serviceAreas?: { province: string; district: string }[];
+  availability?: { dayOfWeek: number; startTime: string; endTime: string }[];
   rating: number;
   reviews: number;
 };
 
 export default function CompanionSearch() {
   const [companions, setCompanions] = useState<Companion[]>([]);
+  const [areas, setAreas] = useState<AreaOption[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    [],
+  );
   const [search, setSearch] = useState("");
-  const [minimumRating, setMinimumRating] = useState(0);
+  const [filters, setFilters] = useState<SearchFilters>({ ...emptyFilters });
   const [showFilter, setShowFilter] = useState(false);
+
   const [selectedCompanion, setSelectedCompanion] = useState<Companion | null>(
     null,
   );
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -30,71 +43,148 @@ export default function CompanionSearch() {
     let active = true;
     const supabase = createClient();
 
-    async function loadCompanions() {
+    async function loadData() {
       setLoading(true);
+      setError("");
 
-      const { data: approved, error: approvedError } = await supabase
-        .from("companion_profiles")
-        .select("user_id,bio,rating_avg,rating_count")
-        .eq("verification_status", "approved");
+      const [approvedResult, areasResult, categoriesResult] = await Promise.all(
+        [
+          supabase
+            .from("companion_profiles")
+            .select("user_id,bio,experience,rating_avg,rating_count")
+            .eq("verification_status", "approved"),
+
+          supabase
+            .from("areas")
+            .select("id,province,district")
+            .order("district"),
+          supabase
+            .from("service_categories")
+            .select("id,name")
+            .eq("is_active", true),
+        ],
+      );
 
       if (!active) return;
 
-      if (approvedError) {
-        console.error("Load approved companions:", approvedError);
-        setError(
-          "โหลดรายชื่อ Companion ไม่สำเร็จ กรุณาตรวจสอบสิทธิ์การอ่านข้อมูล",
-        );
+      if (categoriesResult.error) {
+        console.error("Load categories:", categoriesResult.error);
+      } else {
+        setCategories(categoriesResult.data ?? []);
+      }
+
+      if (areasResult.error) {
+        console.error("Load areas:", areasResult.error);
+      } else {
+        setAreas(areasResult.data ?? []);
+      }
+
+      if (approvedResult.error) {
+        console.error("Load companions:", approvedResult.error);
+        setError("ไม่สามารถโหลดรายชื่อ Companion ได้");
         setLoading(false);
         return;
       }
 
-      if (!approved?.length) {
+      const approved = approvedResult.data ?? [];
+
+      if (approved.length === 0) {
         setCompanions([]);
         setLoading(false);
         return;
       }
 
-      const ids = approved.map((c) => c.user_id);
+      const ids = approved.map((item) => item.user_id);
 
-      const { data: profiles, error: profileError } = await supabase
-        .from("profiles")
-        .select("id,full_name,avatar_url")
-        .in("id", ids);
+      const [profilesResult, serviceAreasResult, availabilityResult] =
+        await Promise.all([
+          supabase
+            .from("profiles")
+            .select("id,full_name,avatar_url")
+            .in("id", ids),
+          supabase
+            .from("companion_service_areas")
+            .select("companion_id,area:areas(province,district)")
+            .in("companion_id", ids),
+          supabase
+            .from("companion_availability")
+            .select("companion_id,day_of_week,start_time,end_time")
+            .in("companion_id", ids)
+            .order("day_of_week"),
+        ]);
+      const { data: profiles, error: profileError } = profilesResult;
+      if (serviceAreasResult.error || availabilityResult.error) {
+        console.error(
+          "Load service areas / availability:",
+          serviceAreasResult.error,
+          availabilityResult.error,
+        );
+      }
+      const areaMap = new Map<
+        string,
+        { province: string; district: string }[]
+      >();
+      for (const row of serviceAreasResult.data ?? []) {
+        const area = Array.isArray(row.area) ? row.area[0] : row.area;
+        if (area)
+          areaMap.set(row.companion_id, [
+            ...(areaMap.get(row.companion_id) ?? []),
+            area,
+          ]);
+      }
+      const availabilityMap = new Map<
+        string,
+        { dayOfWeek: number; startTime: string; endTime: string }[]
+      >();
+      for (const row of availabilityResult.data ?? []) {
+        availabilityMap.set(row.companion_id, [
+          ...(availabilityMap.get(row.companion_id) ?? []),
+          {
+            dayOfWeek: row.day_of_week,
+            startTime: row.start_time,
+            endTime: row.end_time,
+          },
+        ]);
+      }
 
       if (!active) return;
 
       if (profileError) {
-        console.error("Load companion profiles:", profileError);
-        setError("โหลดข้อมูลโปรไฟล์ไม่สำเร็จ กรุณาตรวจสอบ RLS ของ profiles");
+        console.error("Load profiles:", profileError);
+        setError("ไม่สามารถโหลดข้อมูลโปรไฟล์ได้");
         setLoading(false);
         return;
       }
 
-      const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
-
-      setCompanions(
-        approved.flatMap((c) => {
-          const p = profileById.get(c.user_id);
-          if (!p) return [];
-
-          return [
-            {
-              id: c.user_id,
-              name: p.full_name?.trim() || "Companion",
-              avatar: p.avatar_url ?? "",
-              bio: c.bio ?? "",
-              rating: Number(c.rating_avg ?? 0),
-              reviews: Number(c.rating_count ?? 0),
-            },
-          ];
-        }),
+      const profileMap = new Map(
+        (profiles ?? []).map((profile) => [profile.id, profile]),
       );
 
+      const result: Companion[] = approved.flatMap((item) => {
+        const profile = profileMap.get(item.user_id);
+
+        if (!profile) return [];
+
+        return [
+          {
+            id: item.user_id,
+            name: profile.full_name?.trim() || "Companion",
+            avatar: profile.avatar_url ?? "",
+            bio: item.bio ?? "",
+            experience: item.experience ?? "",
+            serviceAreas: areaMap.get(item.user_id) ?? [],
+            availability: availabilityMap.get(item.user_id) ?? [],
+            rating: Number(item.rating_avg ?? 0),
+            reviews: Number(item.rating_count ?? 0),
+          },
+        ];
+      });
+
+      setCompanions(result);
       setLoading(false);
     }
 
-    void loadCompanions();
+    void loadData();
 
     return () => {
       active = false;
@@ -104,13 +194,32 @@ export default function CompanionSearch() {
   const filteredCompanions = useMemo(() => {
     const keyword = search.trim().toLocaleLowerCase();
 
-    return companions.filter(
-      (c) =>
-        (c.name.toLocaleLowerCase().includes(keyword) ||
-          c.bio.toLocaleLowerCase().includes(keyword)) &&
-        (minimumRating === 0 || (c.reviews > 0 && c.rating >= minimumRating)),
-    );
-  }, [companions, search, minimumRating]);
+    return companions.filter((companion) => {
+      const matchesKeyword =
+        keyword.length === 0 ||
+        companion.name.toLocaleLowerCase().includes(keyword) ||
+        companion.bio.toLocaleLowerCase().includes(keyword) ||
+        (companion.experience ?? "").toLocaleLowerCase().includes(keyword) ||
+        (companion.serviceAreas ?? []).some((area) =>
+          `${area.district} ${area.province}`
+            .toLocaleLowerCase()
+            .includes(keyword),
+        );
+
+      const matchesRating =
+        filters.minimumRating === 0 ||
+        (companion.reviews > 0 && companion.rating >= filters.minimumRating);
+
+      return matchesKeyword && matchesRating;
+    });
+  }, [companions, search, filters.minimumRating]);
+
+  const hasJobDetails = false;
+
+  function clearFilters() {
+    setSearch("");
+    setFilters({ ...emptyFilters });
+  }
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -123,24 +232,25 @@ export default function CompanionSearch() {
           </h1>
 
           <p className="mt-2 text-slate-500">
-            ค้นหาจากชื่อหรือข้อมูลแนะนำตัว แล้วดูโปรไฟล์ก่อนส่งคำขอ
+            ค้นหาจากชื่อหรือข้อมูลแนะนำตัว และระบุรายละเอียดงานที่ต้องการ
           </p>
         </div>
 
         <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <input
               aria-label="ค้นหา Companion"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="ค้นหาชื่อ Companion หรือข้อมูลแนะนำตัว..."
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="ค้นหาชื่อ Companion หรือสถานที่ในข้อมูลแนะนำตัว..."
               className="min-w-0 flex-1 rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-sky-500"
             />
 
             <button
               type="button"
-              onClick={() => setShowFilter((v) => !v)}
-              className="rounded-xl border border-slate-300 px-5 font-semibold text-slate-700"
+              aria-expanded={showFilter}
+              onClick={() => setShowFilter((previous) => !previous)}
+              className="cursor-pointer rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 shadow-sm"
             >
               ⚙ ตัวกรอง
             </button>
@@ -148,14 +258,27 @@ export default function CompanionSearch() {
 
           {showFilter && (
             <CompanionFilter
-              minimumRating={minimumRating}
-              onMinimumRatingChange={setMinimumRating}
+              filters={filters}
+              areas={areas}
+              onChange={(nextFilters) => {
+                setFilters(nextFilters);
+              }}
+              onClear={clearFilters}
             />
           )}
         </div>
 
+        {hasJobDetails && (
+          <div className="mb-6 rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-900">
+            คุณระบุรายละเอียดงานแล้ว แต่ระบบยังไม่มีข้อมูลยืนยันตารางเวลาว่าง
+            ประเภทงานที่รับ และพื้นที่ให้บริการของ Companion แต่ละคน
+            ดังนั้นรายละเอียดเหล่านี้ยังไม่ถูกนำมาใช้ตัดรายชื่อออก
+          </div>
+        )}
+
         <div className="mb-4">
           <h2 className="text-xl font-bold">Companion</h2>
+
           <p className="text-sm text-slate-500">
             {loading ? "กำลังโหลด..." : `พบ ${filteredCompanions.length} คน`}
           </p>

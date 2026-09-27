@@ -2,9 +2,11 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { getRequestContact } from "@/lib/contact";
 
 import StatusBadge from "@/components/companion/dashboard/StatusBadge";
 import JobActions from "@/components/companion/jobs/JobActions";
+import { isRequestExpired } from "@/lib/requests/expiration";
 
 type Props = {
   params: Promise<{
@@ -75,8 +77,7 @@ export default async function CompanionJobDetailPage({ params }: Props) {
 
         customer:profiles!service_requests_customer_id_fkey (
           full_name,
-          avatar_url,
-          phone
+          avatar_url
         ),
 
         category:service_categories (
@@ -107,10 +108,20 @@ export default async function CompanionJobDetailPage({ params }: Props) {
     notFound();
   }
 
-  // pending ยังถือเป็น Request
-  if (job.status === "pending") {
+  // pending ที่หมดอายุแล้วให้แสดงสถานะ expired ในหน้านี้
+  if (
+    job.status === "pending" &&
+    isRequestExpired(job.service_date, job.start_time)
+  ) {
+    job.status = "expired";
+  } else if (job.status === "pending") {
     redirect(`/companion/requests/${job.id}`);
   }
+
+  const contactPhone =
+    job.status === "accepted" || job.status === "in_progress"
+      ? await getRequestContact(supabase, job.id)
+      : null;
 
   const customer = getRelation(job.customer);
 
@@ -122,10 +133,10 @@ export default async function CompanionJobDetailPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8">
         <Link
           href="/companion/jobs"
-          className="mb-6 inline-flex text-sm font-semibold text-slate-500 hover:text-sky-600"
+          className="mb-6 inline-flex text-md font-semibold text-slate-500 hover:text-violet-600"
         >
           ← กลับไปงานของฉัน
         </Link>
@@ -168,10 +179,9 @@ export default async function CompanionJobDetailPage({ params }: Props) {
                   <p className="font-bold text-slate-800">
                     {customer?.full_name || "ไม่ระบุชื่อ"}
                   </p>
-
-                  {customer?.phone && (
-                    <p className="mt-1 text-sm text-slate-500">
-                      {customer.phone}
+                  {contactPhone && (
+                    <p className="mt-1 text-sm text-violet-700">
+                      เบอร์โทรศัพท์: {contactPhone}
                     </p>
                   )}
                 </div>

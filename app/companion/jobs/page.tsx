@@ -2,9 +2,9 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 
-import JobCard, {
-  type CompanionJob,
-} from "@/components/companion/jobs/JobCard";
+import CompanionJobList from "@/components/companion/jobs/CompanionJobList";
+import type { CompanionJob } from "@/components/companion/jobs/JobCard";
+import { syncExpiredRequests, isRequestExpired } from "@/lib/requests/expiration";
 
 export default async function CompanionJobsPage() {
   const supabase = await createClient();
@@ -52,6 +52,17 @@ export default async function CompanionJobsPage() {
     redirect("/onboarding/companion/status");
   }
 
+  // Sync any overdue pending requests to expired
+  const { data: pendingRows } = await supabase
+    .from("service_requests")
+    .select("id, status, service_date, start_time")
+    .eq("companion_id", user.id)
+    .eq("status", "pending");
+
+  if (pendingRows?.length) {
+    await syncExpiredRequests(supabase, pendingRows);
+  }
+
   // Jobs
   const { data, error } = await supabase
     .from("service_requests")
@@ -61,7 +72,10 @@ export default async function CompanionJobsPage() {
       service_date,
       start_time,
       duration_minutes,
+      origin_name,
       destination_name,
+      note,
+      meeting_detail,
       offered_fee,
       status,
 
@@ -72,11 +86,29 @@ export default async function CompanionJobsPage() {
 
       category:service_categories (
         name
+      ),
+
+      origin_area:areas!service_requests_origin_area_id_fkey (
+        province,
+        district
+      ),
+
+      destination_area:areas!service_requests_destination_area_id_fkey (
+        province,
+        district
       )
     `,
     )
     .eq("companion_id", user.id)
-    .in("status", ["accepted", "in_progress", "completed", "cancelled"])
+    .in("status", [
+      "pending",
+      "accepted",
+      "in_progress",
+      "completed",
+      "cancelled",
+      "rejected",
+      "expired",
+    ])
     .order("service_date", {
       ascending: false,
     })
@@ -88,7 +120,21 @@ export default async function CompanionJobsPage() {
     console.error("Load companion jobs error:", error);
   }
 
-  const jobs: CompanionJob[] = (data ?? []).map((row) => {
+  const jobs: CompanionJob[] = [];
+
+  for (const row of data ?? []) {
+    let status = row.status;
+
+    if (status === "pending") {
+      // If it's pending, only include if it's expired
+      if (isRequestExpired(row.service_date, row.start_time)) {
+        status = "expired";
+      } else {
+        // Active pending request belongs in /companion/requests
+        continue;
+      }
+    }
+
     const customer = Array.isArray(row.customer)
       ? (row.customer[0] ?? null)
       : (row.customer ?? null);
@@ -97,7 +143,25 @@ export default async function CompanionJobsPage() {
       ? (row.category[0] ?? null)
       : (row.category ?? null);
 
-    return {
+    const originArea = Array.isArray(row.origin_area)
+      ? (row.origin_area[0] ?? null)
+      : (row.origin_area ?? null);
+
+    const destinationArea = Array.isArray(row.destination_area)
+      ? (row.destination_area[0] ?? null)
+      : (row.destination_area ?? null);
+
+    const originName =
+      row.origin_name ||
+      (originArea ? `${originArea.district}, ${originArea.province}` : null);
+
+    const destinationName =
+      row.destination_name ||
+      (destinationArea
+        ? `${destinationArea.district}, ${destinationArea.province}`
+        : null);
+
+    jobs.push({
       id: row.id,
 
       serviceDate: row.service_date ?? "",
@@ -106,11 +170,17 @@ export default async function CompanionJobsPage() {
 
       durationMinutes: row.duration_minutes ?? null,
 
-      destinationName: row.destination_name ?? null,
+      originName: originName,
+
+      destinationName: destinationName,
+
+      note: row.note ?? null,
+
+      meetingDetail: row.meeting_detail ?? null,
 
       offeredFee: row.offered_fee ?? null,
 
-      status: row.status,
+      status: status,
 
       customer: customer
         ? {
@@ -125,24 +195,20 @@ export default async function CompanionJobsPage() {
             name: category.name,
           }
         : null,
-    };
-  });
-
-  const activeJobs = jobs.filter(
-    (job) => job.status === "accepted" || job.status === "in_progress",
-  );
-
-  const completedJobs = jobs.filter((job) => job.status === "completed");
-
-  const cancelledJobs = jobs.filter((job) => job.status === "cancelled");
+    });
+  }
 
   return (
     <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-5xl px-4 py-8">
+      <div className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-8">
+          <p className="mb-1 font-semibold text-violet-600">งานที่ตอบรับ</p>
+
           <h1 className="text-3xl font-bold text-slate-900">งานของฉัน</h1>
 
-          <p className="mt-1 text-slate-500">ติดตามและจัดการงานที่คุณตอบรับ</p>
+          <p className="mt-2 text-slate-500">
+            ติดตามสถานะและจัดการงานที่คุณตอบรับ
+          </p>
         </div>
 
         {error ? (
@@ -150,75 +216,9 @@ export default async function CompanionJobsPage() {
             ไม่สามารถโหลดข้อมูลงานได้
           </div>
         ) : (
-          <div className="space-y-10">
-            {/* Active */}
-            <JobSection
-              title="งานที่กำลังดำเนินการ"
-              description="งานที่รับแล้วหรือกำลังให้บริการ"
-              jobs={activeJobs}
-              emptyText="ยังไม่มีงานที่กำลังดำเนินการ"
-            />
-
-            {/* Completed */}
-            <JobSection
-              title="งานที่เสร็จสิ้น"
-              description="ประวัติงานที่ให้บริการสำเร็จ"
-              jobs={completedJobs}
-              emptyText="ยังไม่มีงานที่เสร็จสิ้น"
-            />
-
-            {/* Cancelled */}
-            {cancelledJobs.length > 0 && (
-              <JobSection
-                title="งานที่ถูกยกเลิก"
-                description="รายการงานที่ถูกยกเลิก"
-                jobs={cancelledJobs}
-                emptyText=""
-              />
-            )}
-          </div>
+          <CompanionJobList jobs={jobs} />
         )}
       </div>
     </main>
-  );
-}
-
-function JobSection({
-  title,
-  description,
-  jobs,
-  emptyText,
-}: {
-  title: string;
-  description: string;
-  jobs: CompanionJob[];
-  emptyText: string;
-}) {
-  return (
-    <section>
-      <div className="mb-4">
-        <div className="flex items-center gap-2">
-          <h2 className="text-xl font-bold text-slate-900">{title}</h2>
-
-          <span className="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-bold text-slate-600">
-            {jobs.length}
-          </span>
-        </div>
-
-        <p className="mt-1 text-sm text-slate-400">{description}</p>
-      </div>
-
-      {jobs.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-10 text-center text-sm text-slate-400">
-          {emptyText}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {jobs.map((job) => (
-            <JobCard key={job.id} job={job} />
-          ))}
-        </div>
-      )}
-    </section>
   );
 }

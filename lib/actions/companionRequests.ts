@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { isRequestExpired } from "@/lib/requests/expiration";
 
 type CompanionAction = "accept" | "reject" | "start" | "complete";
 
@@ -28,6 +29,30 @@ async function updateRequestStatus(
         success: false,
         error: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
       };
+    }
+
+    if (action === "accept") {
+      const { data: req } = await supabase
+        .from("service_requests")
+        .select("service_date, start_time, status")
+        .eq("id", requestId)
+        .maybeSingle();
+
+      if (req && isRequestExpired(req.service_date, req.start_time)) {
+        await supabase
+          .from("service_requests")
+          .update({ status: "expired" })
+          .eq("id", requestId);
+
+        revalidatePath("/companion");
+        revalidatePath("/companion/requests");
+        revalidatePath("/customer/requests");
+
+        return {
+          success: false,
+          error: "คำขอนี้หมดอายุแล้ว เนื่องจากเลยเวลาเริ่มงานแล้ว",
+        };
+      }
     }
 
     // เรียก PostgreSQL Function

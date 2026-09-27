@@ -76,6 +76,7 @@ export async function GET(request: Request) {
   const role = profile.role;
 
   let destination = "/onboarding/role";
+  let companionProfile: { verification_status: string } | null = null;
 
   if (role === "customer") {
     if (!profile.full_name || !profile.phone) {
@@ -84,7 +85,21 @@ export async function GET(request: Request) {
       destination = "/customer";
     }
   } else if (role === "companion") {
-    destination = "/onboarding/companion";
+    const { data: comp } = await supabase
+      .from("companion_profiles")
+      .select("verification_status")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    companionProfile = comp;
+
+    if (!comp) {
+      destination = "/onboarding/companion";
+    } else if (comp.verification_status === "approved") {
+      destination = "/companion";
+    } else {
+      destination = "/onboarding/companion/status";
+    }
   } else if (role === "admin") {
     destination = "/admin";
   }
@@ -97,6 +112,10 @@ export async function GET(request: Request) {
     Boolean(profile?.full_name) &&
     Boolean(profile?.phone);
 
+  const companionApproved =
+    role === "companion" &&
+    companionProfile?.verification_status === "approved";
+
   if (
     requestedNext &&
     requestedNext.startsWith("/") &&
@@ -105,7 +124,8 @@ export async function GET(request: Request) {
     !requestedNext.includes("\\") &&
     role &&
     role !== "admin" &&
-    (role !== "customer" || customerProfileComplete)
+    ((role === "customer" && customerProfileComplete) ||
+      (role === "companion" && companionApproved))
   ) {
     const allowedPrefix = `/${role}`;
 

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 
 import { acceptRequest, rejectRequest } from "@/lib/actions/companionRequests";
 
+import Swal from "sweetalert2";
+
 type Props = {
   requestId: string;
 };
@@ -19,6 +21,20 @@ export default function RequestActions({ requestId }: Props) {
   async function handleAccept() {
     if (loading) return;
 
+    const confirmation = await Swal.fire({
+      title: "ยืนยันการรับงานนี้?",
+      text: "คุณต้องการรับงานและให้บริการตามวันเวลาที่ระบุใช่หรือไม่?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "ยืนยันรับงาน",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#7c3aed",
+      cancelButtonColor: "#64748b",
+      reverseButtons: true,
+    });
+
+    if (!confirmation.isConfirmed) return;
+
     try {
       setLoading("accept");
       setError(null);
@@ -26,17 +42,36 @@ export default function RequestActions({ requestId }: Props) {
       const result = await acceptRequest(requestId);
 
       if (!result.success) {
+        await Swal.fire({
+          title: "ไม่สามารถรับงานได้",
+          text: result.error || "กรุณาลองใหม่อีกครั้ง",
+          icon: "error",
+          confirmButtonColor: "#7c3aed",
+          confirmButtonText: "ตกลง",
+        });
         setError(result.error || "ไม่สามารถรับงานได้");
-
         return;
       }
 
-      router.replace(`/companion/jobs/${requestId}`);
+      await Swal.fire({
+        title: "รับงานเรียบร้อยแล้ว!",
+        text: "ระบบได้บันทึกการรับงานแล้ว คุณสามารถเริ่มให้บริการได้เมื่อถึงเวลานัดหมาย",
+        icon: "success",
+        confirmButtonColor: "#7c3aed",
+        confirmButtonText: "ไปยังหน้ารายละเอียดงาน",
+      });
 
+      router.replace(`/companion/jobs/${requestId}`);
       router.refresh();
     } catch (error) {
       console.error("Accept request error:", error);
-
+      await Swal.fire({
+        title: "เกิดข้อผิดพลาด",
+        text: "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง",
+        icon: "error",
+        confirmButtonColor: "#7c3aed",
+        confirmButtonText: "ตกลง",
+      });
       setError("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
     } finally {
       setLoading(null);
@@ -46,9 +81,19 @@ export default function RequestActions({ requestId }: Props) {
   async function handleReject() {
     if (loading) return;
 
-    const confirmed = window.confirm("ยืนยันว่าต้องการปฏิเสธคำขอนี้?");
+    const confirmed = await Swal.fire({
+      title: "ยืนยันว่าต้องการปฏิเสธคำขอนี้?",
+      text: "หากปฏิเสธแล้ว คำขอนี้จะถูกส่งกลับและไม่สามารถเรียกคืนได้",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "ยืนยันปฏิเสธคำขอ",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#e11d48",
+      cancelButtonColor: "#64748b",
+      reverseButtons: true,
+    });
 
-    if (!confirmed) return;
+    if (!confirmed.isConfirmed) return;
 
     try {
       setLoading("reject");
@@ -57,17 +102,35 @@ export default function RequestActions({ requestId }: Props) {
       const result = await rejectRequest(requestId);
 
       if (!result.success) {
+        await Swal.fire({
+          title: "ไม่สามารถปฏิเสธได้",
+          text: result.error || "กรุณาลองใหม่อีกครั้ง",
+          icon: "error",
+          confirmButtonColor: "#7c3aed",
+          confirmButtonText: "ตกลง",
+        });
         setError(result.error || "ไม่สามารถปฏิเสธคำขอได้");
-
         return;
       }
 
-      router.replace("/companion/requests");
+      await Swal.fire({
+        title: "ปฏิเสธคำขอเรียบร้อยแล้ว",
+        icon: "success",
+        confirmButtonColor: "#7c3aed",
+        confirmButtonText: "ตกลง",
+      });
 
+      router.replace("/companion/requests");
       router.refresh();
     } catch (error) {
       console.error("Reject request error:", error);
-
+      await Swal.fire({
+        title: "เกิดข้อผิดพลาด",
+        text: "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง",
+        icon: "error",
+        confirmButtonColor: "#7c3aed",
+        confirmButtonText: "ตกลง",
+      });
       setError("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
     } finally {
       setLoading(null);
@@ -96,7 +159,7 @@ export default function RequestActions({ requestId }: Props) {
           type="button"
           onClick={handleAccept}
           disabled={loading !== null}
-          className="cursor-pointer rounded-xl bg-sky-600 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="cursor-pointer rounded-xl bg-violet-600 py-3 font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           {loading === "accept" ? "กำลังรับงาน..." : "รับงาน"}
         </button>

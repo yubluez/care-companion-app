@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getUser, signOut } from "@/lib/actions/auth";
 import { createClient } from "@/lib/supabase/server";
 import ProfileEditor from "@/components/shared/ProfileEditor";
+import { getMyPhone } from "@/lib/contact";
 
 export default async function Page() {
   const user = await getUser();
@@ -31,8 +32,8 @@ export default async function Page() {
 
   const email = user.email || "-";
 
-  const phone = profile?.phone || "";
-
+  const phone = profile?.phone || (await getMyPhone(supabase)) || "";
+  
   const avatarUrl =
     profile?.avatar_url ||
     user.user_metadata?.avatar_url ||

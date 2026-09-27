@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import RequestActions from "@/components/companion/requests/RequestActions";
 import StatusBadge from "@/components/companion/dashboard/StatusBadge";
+import { isRequestExpired } from "@/lib/requests/expiration";
 
 type Props = {
   params: Promise<{
@@ -68,6 +69,7 @@ export default async function CompanionRequestDetailPage({ params }: Props) {
       service_date,
       start_time,
       duration_minutes,
+      origin_name,
       destination_name,
       note,
       meeting_detail,
@@ -76,8 +78,7 @@ export default async function CompanionRequestDetailPage({ params }: Props) {
 
       customer:profiles!service_requests_customer_id_fkey (
         full_name,
-        avatar_url,
-        phone
+        avatar_url
       ),
 
       category:service_categories (
@@ -108,6 +109,18 @@ export default async function CompanionRequestDetailPage({ params }: Props) {
     notFound();
   }
 
+  if (
+    request.status === "pending" &&
+    isRequestExpired(request.service_date, request.start_time)
+  ) {
+    request.status = "expired";
+    await supabase
+      .from("service_requests")
+      .update({ status: "expired" })
+      .eq("id", request.id)
+      .eq("status", "pending");
+  }
+
   // ถ้ารับงานไปแล้ว ให้ไปหน้า Job
   if (
     request.status === "accepted" ||
@@ -124,10 +137,10 @@ export default async function CompanionRequestDetailPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-slate-50">
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         <Link
           href="/companion/requests"
-          className="inline-flex text-sm font-semibold text-slate-500 hover:text-sky-600 mb-6"
+          className="inline-flex text-sm font-semibold text-slate-500 hover:text-violet-600 mb-6"
         >
           ← กลับไปคำของาน
         </Link>
@@ -176,12 +189,6 @@ export default async function CompanionRequestDetailPage({ params }: Props) {
                   <p className="font-bold text-slate-800">
                     {customer?.full_name || "ไม่ระบุชื่อ"}
                   </p>
-
-                  {customer?.phone && (
-                    <p className="text-sm text-slate-500 mt-1">
-                      {customer.phone}
-                    </p>
-                  )}
                 </div>
               </div>
             </section>
@@ -216,7 +223,8 @@ export default async function CompanionRequestDetailPage({ params }: Props) {
                 <DetailItem
                   label="พื้นที่ต้นทาง"
                   value={
-                    origin ? `${origin.district}, ${origin.province}` : "-"
+                    request.origin_name ||
+                    (origin ? `${origin.district}, ${origin.province}` : "-")
                   }
                 />
 
@@ -284,6 +292,18 @@ export default async function CompanionRequestDetailPage({ params }: Props) {
             {request.status === "rejected" && (
               <div className="bg-slate-50 text-slate-500 rounded-xl px-4 py-3 text-center text-sm">
                 คุณได้ปฏิเสธคำขอนี้แล้ว
+              </div>
+            )}
+
+            {request.status === "expired" && (
+              <div className="bg-slate-50 text-slate-500 rounded-xl px-4 py-3 text-center text-sm">
+                คำขอนี้หมดอายุแล้ว
+              </div>
+            )}
+
+            {request.status === "cancelled" && (
+              <div className="bg-slate-50 text-slate-500 rounded-xl px-4 py-3 text-center text-sm">
+                คำขอนี้ถูกยกเลิกแล้ว
               </div>
             )}
           </div>

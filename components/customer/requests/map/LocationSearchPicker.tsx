@@ -99,7 +99,7 @@ export default function LocationSearchPicker({
           type="button"
           onClick={() => void handleSearch()}
           disabled={loading || query.trim().length < 3}
-          className="rounded-xl bg-sky-600 px-5 py-3 font-semibold text-white disabled:bg-slate-300"
+          className="cursor-pointer rounded-xl bg-sky-600 px-5 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300 shadow-sm"
         >
           {loading ? "กำลังค้นหา..." : "ค้นหา"}
         </button>
@@ -128,7 +128,7 @@ export default function LocationSearchPicker({
                 setResults([]);
                 setHasSearched(false);
               }}
-              className="w-full rounded-lg p-3 text-left text-sm text-slate-700 hover:bg-sky-50"
+              className="w-full cursor-pointer rounded-lg p-3 text-left text-sm text-slate-700 transition hover:bg-sky-50"
             >
               📍 {place.name}
             </button>

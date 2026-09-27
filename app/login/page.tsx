@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getMyPhone } from "@/lib/contact";
 
 function LoginForm() {
   const router = useRouter();
@@ -55,22 +56,49 @@ function LoginForm() {
         const role = profile.role;
 
         if (role === "customer") {
-          if (!profile.full_name || !profile.phone) {
+          const phone = profile.phone || (await getMyPhone(supabase));
+
+          if (!profile.full_name || !phone) {
             router.replace("/onboarding/customer");
           } else {
-            router.replace("/customer");
+            if (nextParam && nextParam.startsWith("/customer")) {
+              router.replace(nextParam);
+            } else {
+              router.replace("/customer");
+            }
           }
 
           return;
         }
 
         if (role === "companion") {
-          router.replace("/onboarding/companion");
+          const { data: companionProfile } = await supabase
+            .from("companion_profiles")
+            .select("verification_status")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (!companionProfile) {
+            router.replace("/onboarding/companion");
+          } else if (companionProfile.verification_status === "approved") {
+            if (nextParam && nextParam.startsWith("/companion")) {
+              router.replace(nextParam);
+            } else {
+              router.replace("/companion");
+            }
+          } else {
+            router.replace("/onboarding/companion/status");
+          }
+
           return;
         }
 
         if (role === "admin") {
-          router.replace("/admin");
+          if (nextParam && nextParam.startsWith("/admin")) {
+            router.replace(nextParam);
+          } else {
+            router.replace("/admin");
+          }
           return;
         }
 

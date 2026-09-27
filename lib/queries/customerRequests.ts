@@ -5,6 +5,7 @@ import type {
   ServiceRequest,
   RequestStatus,
 } from "@/components/customer/requests/types";
+import { syncExpiredRequests } from "@/lib/requests/expiration";
 
 const allowedStatuses: RequestStatus[] = [
   "pending",
@@ -101,6 +102,8 @@ export async function getCustomerRequests(): Promise<ServiceRequest[]> {
   }
 
   if (!requests?.length) return [];
+
+  await syncExpiredRequests(supabase, requests);
 
   const companionIds = [...new Set(requests.map((r) => r.companion_id))].filter(
     (id): id is string => Boolean(id),

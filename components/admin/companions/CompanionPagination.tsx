@@ -61,10 +61,10 @@ export default function CompanionPagination({
               <Link
                 key={pageNumber}
                 href={buildUrl(pageNumber)}
-                className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-semibold transition ${
+                className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-semibold transition cursor-pointer ${
                   pageNumber === currentPage
-                    ? "bg-slate-900 text-white"
-                    : "text-slate-500 hover:bg-slate-100"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-700"
                 }`}
               >
                 {pageNumber}
@@ -104,7 +104,7 @@ function PaginationButton({
   return (
     <Link
       href={href}
-      className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"
+      className="cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700"
     >
       {children}
     </Link>

@@ -43,8 +43,8 @@ export default function AdminNavbar({ adminName }: Props) {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        <Link href="/admin" className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 font-bold text-white">
+        <Link href="/admin" className="cursor-pointer flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 font-bold text-white shadow-sm">
             A
           </div>
 
@@ -62,10 +62,10 @@ export default function AdminNavbar({ adminName }: Props) {
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+              className={`cursor-pointer rounded-xl px-4 py-2 text-sm font-semibold transition ${
                 isActive(item.href)
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700"
               }`}
             >
               {item.label}
@@ -84,7 +84,7 @@ export default function AdminNavbar({ adminName }: Props) {
         <button
           type="button"
           onClick={() => setOpen((value) => !value)}
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 md:hidden"
+          className="cursor-pointer flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 md:hidden hover:bg-slate-50 transition"
         >
           {open ? "✕" : "☰"}
         </button>
@@ -97,10 +97,10 @@ export default function AdminNavbar({ adminName }: Props) {
               key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
-              className={`block rounded-xl px-4 py-3 text-sm font-semibold ${
+              className={`cursor-pointer block rounded-xl px-4 py-3 text-sm font-semibold transition ${
                 isActive(item.href)
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-600"
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-700"
               }`}
             >
               {item.label}

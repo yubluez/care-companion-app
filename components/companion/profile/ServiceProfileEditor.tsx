@@ -82,7 +82,7 @@ export default function ServiceProfileEditor({
               setMessage("");
               setEditing(true);
             }}
-            className="text-sm text-sky-600 hover:text-sky-700 font-medium px-3 py-1.5 rounded-lg hover:bg-sky-50 transition border border-sky-200 cursor-pointer"
+            className="text-sm text-violet-600 hover:text-violet-700 font-medium px-3 py-1.5 rounded-lg hover:bg-violet-50 transition border border-violet-200 cursor-pointer"
           >
             แก้ไขข้อมูล
           </button>
@@ -101,7 +101,7 @@ export default function ServiceProfileEditor({
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="text-sm text-white bg-sky-600 hover:bg-sky-700 font-medium px-4 py-1.5 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-sm text-white bg-violet-600 hover:bg-violet-700 font-medium px-4 py-1.5 rounded-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? "กำลังบันทึก..." : "บันทึก"}
             </button>
@@ -122,7 +122,7 @@ export default function ServiceProfileEditor({
               maxLength={1000}
               rows={4}
               placeholder="แนะนำตัวและบอกเหตุผลที่อยากเป็น Companion..."
-              className="w-full rounded-xl border border-slate-200 p-4 outline-none focus:border-sky-500"
+              className="w-full rounded-xl border border-slate-200 p-4 outline-none focus:border-violet-500"
             />
           ) : (
             <p className="whitespace-pre-wrap rounded-xl bg-slate-50 p-4 text-slate-700">
@@ -143,7 +143,7 @@ export default function ServiceProfileEditor({
               maxLength={2000}
               rows={5}
               placeholder="ระบุประสบการณ์ ทักษะ หรือความสามารถที่เกี่ยวข้อง..."
-              className="w-full rounded-xl border border-slate-200 p-4 outline-none focus:border-sky-500"
+              className="w-full rounded-xl border border-slate-200 p-4 outline-none focus:border-violet-500"
             />
           ) : (
             <p className="whitespace-pre-wrap rounded-xl bg-slate-50 p-4 text-slate-700">

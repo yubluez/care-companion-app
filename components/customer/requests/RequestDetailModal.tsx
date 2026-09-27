@@ -1,9 +1,12 @@
 "use client";
 
-"use client";
-
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { getRequestContact } from "@/lib/contact";
+import { cancelCustomerRequest } from "@/lib/actions/customerRequests";
 import ReviewForm from "@/components/customer/reviews/ReviewForm";
+import Swal from "sweetalert2";
 import {
   getMyReview,
   submitReview,
@@ -15,6 +18,7 @@ import type { ServiceRequest, RequestStatus } from "./types";
 type Props = {
   request: ServiceRequest | null;
   onClose: () => void;
+  onCancelled?: () => void | Promise<void>;
 };
 
 const statusConfig: Record<RequestStatus, { label: string; style: string }> = {
@@ -50,7 +54,17 @@ const statusConfig: Record<RequestStatus, { label: string; style: string }> = {
   },
 };
 
-export default function RequestDetailModal({ request, onClose }: Props) {
+export default function RequestDetailModal({
+  request,
+  onClose,
+  onCancelled,
+}: Props) {
+  const router = useRouter();
+
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState("");
+
   const [review, setReview] = useState<CustomerReview | null>(null);
 
   const [loadingReview, setLoadingReview] = useState(false);
@@ -59,6 +73,42 @@ export default function RequestDetailModal({ request, onClose }: Props) {
 
   const requestId = request?.id;
   const isCompleted = request?.status === "completed";
+  const canViewContact =
+    request?.status === "accepted" || request?.status === "in_progress";
+  const [contactPhone, setContactPhone] = useState<string | null>(null);
+  const [contactError, setContactError] = useState("");
+  const [loadingContact, setLoadingContact] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setContactPhone(null);
+    setContactError("");
+    setLoadingContact(Boolean(requestId && canViewContact));
+
+    if (!requestId || !canViewContact) return;
+
+    const supabase = createClient();
+    getRequestContact(supabase, requestId)
+      .then((phone) => {
+        if (active) setContactPhone(phone);
+      })
+      .catch((error) => {
+        if (active) {
+          setContactError(
+            error instanceof Error
+              ? error.message
+              : "ไม่สามารถโหลดเบอร์โทรศัพท์ได้",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setLoadingContact(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [requestId, canViewContact]);
 
   useEffect(() => {
     let active = true;
@@ -101,6 +151,90 @@ export default function RequestDetailModal({ request, onClose }: Props) {
 
     setReview(savedReview);
     setShowReviewForm(false);
+
+    await Swal.fire({
+      icon: "success",
+      title: "ส่งรีวิวสำเร็จ",
+      text: "ขอบคุณสำหรับความคิดเห็นของคุณ",
+      confirmButtonColor: "#0284c7",
+      confirmButtonText: "ตกลง",
+    });
+  }
+
+  async function handleCancel() {
+    if (!requestId || cancelling || !request) return;
+
+    // อนุญาตเฉพาะคำขอที่ยังไม่เริ่มงาน
+    if (request.status !== "pending" && request.status !== "accepted") {
+      await Swal.fire({
+        title: "ไม่สามารถยกเลิกได้",
+        text: "คำขอนี้ไม่อยู่ในสถานะที่สามารถยกเลิกได้",
+        icon: "info",
+        confirmButtonColor: "#0284c7",
+      });
+      return;
+    }
+
+    const isAccepted = request.status === "accepted";
+
+    const confirmation = await Swal.fire({
+      title: isAccepted
+        ? "ยืนยันการยกเลิกงานที่ตอบรับแล้ว?"
+        : "ยืนยันการยกเลิกคำขอ?",
+
+      text: isAccepted
+        ? "Companion ตอบรับงานนี้แล้ว การยกเลิกอาจส่งผลต่อการเตรียมตัวของ Companion คุณต้องการดำเนินการต่อหรือไม่?"
+        : "คุณต้องการยกเลิกคำขอนี้ใช่หรือไม่?",
+
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "ยืนยันการยกเลิก",
+      cancelButtonText: "กลับ",
+      confirmButtonColor: "#e11d48",
+      cancelButtonColor: "#64748b",
+      reverseButtons: true,
+    });
+
+    if (!confirmation.isConfirmed) return;
+
+    setCancelling(true);
+
+    try {
+      const result = await cancelCustomerRequest(requestId);
+
+      if (!result.success) {
+        await Swal.fire({
+          title: "ยกเลิกไม่สำเร็จ",
+          text: result.error ?? "กรุณาลองใหม่อีกครั้ง",
+          icon: "error",
+          confirmButtonColor: "#0284c7",
+        });
+
+        router.refresh();
+        return;
+      }
+
+      await Swal.fire({
+        title: "ยกเลิกคำขอสำเร็จ",
+        text: "ระบบได้เปลี่ยนสถานะคำขอเรียบร้อยแล้ว",
+        icon: "success",
+        confirmButtonColor: "#0284c7",
+        confirmButtonText: "ตกลง",
+      });
+
+      onClose();
+      router.refresh();
+      await onCancelled?.();
+    } catch {
+      await Swal.fire({
+        title: "เกิดข้อผิดพลาด",
+        text: "ไม่สามารถดำเนินการได้ กรุณาลองใหม่",
+        icon: "error",
+        confirmButtonColor: "#0284c7",
+      });
+    } finally {
+      setCancelling(false);
+    }
   }
 
   if (!request) return null;
@@ -108,27 +242,15 @@ export default function RequestDetailModal({ request, onClose }: Props) {
   const status = statusConfig[request.status];
   return (
     <div
-      className="
-        fixed inset-0 z-50
-        bg-black/40
-        flex items-center justify-center
-        px-4
-      "
+      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center px-4"
       onClick={onClose}
     >
       <div
-        className="
-          bg-white
-          w-full max-w-2xl
-          max-h-[90vh]
-          overflow-y-auto
-          rounded-3xl
-          shadow-xl
-        "
+        className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-6 border-b border-slate-100">
+        <div className="sticky top-0 bg-white flex items-start justify-between p-6 border-b border-slate-100">
           <div>
             <p className="text-sm text-slate-400">#{request.id}</p>
 
@@ -139,16 +261,8 @@ export default function RequestDetailModal({ request, onClose }: Props) {
 
           <button
             onClick={onClose}
-            className="
-              w-9 h-9
-              flex items-center justify-center
-              rounded-full
-              text-slate-400
-              hover:bg-slate-100
-              hover:text-slate-700
-              transition
-              cursor-pointer
-            "
+            className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400
+                        hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
           >
             ✕
           </button>
@@ -271,7 +385,7 @@ export default function RequestDetailModal({ request, onClose }: Props) {
         </div>
 
         {/* Companion contact */}
-        {["accepted", "in_progress", "completed"].includes(request.status) && (
+        {canViewContact && (
           <div className="px-6 pb-6">
             <div className="bg-sky-50 border border-sky-100 rounded-2xl p-5">
               <p className="text-sm text-slate-500">Companion ที่รับงาน</p>
@@ -280,10 +394,19 @@ export default function RequestDetailModal({ request, onClose }: Props) {
                 {request.companionName}
               </p>
 
-              <p className="text-sm text-slate-500 mt-2">
-                สามารถแสดงเบอร์ติดต่อของ Companion
-                ตรงส่วนนี้ได้หลังจากตอบรับคำขอ
-              </p>
+              {loadingContact ? (
+                <p className="mt-2 text-sm text-slate-500">
+                  กำลังโหลดเบอร์โทรศัพท์...
+                </p>
+              ) : contactError ? (
+                <p className="mt-2 text-sm text-rose-600">{contactError}</p>
+              ) : contactPhone ? (
+                <p className="mt-2 font-semibold text-sky-700">
+                  เบอร์โทรศัพท์: {contactPhone}
+                </p>
+              ) : (
+                <p className="mt-2 text-sm text-slate-500">ไม่มีเบอร์ติดต่อ</p>
+              )}
             </div>
           </div>
         )}
@@ -318,7 +441,7 @@ export default function RequestDetailModal({ request, onClose }: Props) {
                         )
                         .finally(() => setLoadingReview(false));
                     }}
-                    className="text-sm font-semibold text-sky-600"
+                    className="cursor-pointer text-sm font-semibold text-sky-600 hover:underline"
                   >
                     ลองอีกครั้ง
                   </button>
@@ -361,9 +484,7 @@ export default function RequestDetailModal({ request, onClose }: Props) {
                   <button
                     type="button"
                     onClick={() => setShowReviewForm(true)}
-                    className="w-full rounded-xl bg-sky-600
-                       px-5 py-3 font-semibold text-white
-                       transition hover:bg-sky-700"
+                    className="w-full cursor-pointer rounded-xl bg-sky-600 px-5 py-3 font-semibold text-white transition hover:bg-sky-700 shadow-sm"
                   >
                     ★ เขียนรีวิว
                   </button>
@@ -373,24 +494,22 @@ export default function RequestDetailModal({ request, onClose }: Props) {
           </div>
         )}
 
-        {/* Footer */}
-        <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end">
-          <button
-            onClick={onClose}
-            className="
-              px-6 py-2.5
-              bg-sky-600
-              hover:bg-sky-700
-              text-white
-              rounded-xl
-              font-semibold
-              transition
-              cursor-pointer
-            "
-          >
-            ปิด
-          </button>
-        </div>
+        {/* Customer cancellation */}
+        {(request.status === "pending" || request.status === "accepted") && (
+          <div className="px-6 pb-6">
+            <div className="flex justify-end border-t border-slate-100 pt-5">
+              <button
+                type="button"
+                disabled={cancelling}
+                onClick={handleCancel}
+                className="rounded-xl border border-rose-300 bg-white px-5 py-2.5 font-semibold text-rose-600 transition
+                            hover:bg-rose-200 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+              >
+                {cancelling ? "กำลังยกเลิก..." : "ยกเลิกคำขอ"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

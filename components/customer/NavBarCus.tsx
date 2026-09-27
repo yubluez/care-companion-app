@@ -13,10 +13,10 @@ export default async function NavBarCus() {
     "คุณลูกค้า";
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
-      <section className="flex items-center justify-between h-16 max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
-        <Link href="/customer">
-          <span className="text-2xl text-blue-700 font-bold">
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <div className="flex items-center justify-between h-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Link href="/customer" className="cursor-pointer">
+          <span className="text-2xl text-sky-600 font-bold">
             Care Companion
           </span>
         </Link>
@@ -26,12 +26,12 @@ export default async function NavBarCus() {
         <div className="flex items-center gap-2">
           <Link
             href="/customer/manual"
-            className="text-slate-600 font-semibold px-4 py-2 rounded-xl hover:bg-sky-600 hover:text-white transition"
+            className="text-slate-600 font-semibold px-4 py-2 rounded-xl hover:bg-sky-600 hover:text-white transition cursor-pointer"
           >
             การใช้งาน
           </Link>
 
-          <Link href="/customer/profile">
+          <Link href="/customer/profile" className="cursor-pointer">
             {user?.user_metadata?.avatar_url ? (
               <img
                 src={user.user_metadata.avatar_url}
@@ -45,7 +45,7 @@ export default async function NavBarCus() {
             )}
           </Link>
         </div>
-      </section>
+      </div>
     </header>
   );
 }

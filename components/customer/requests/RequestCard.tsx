@@ -42,7 +42,7 @@ const statusConfig: Record<
     label: "ถูกปฏิเสธ",
     style: "bg-rose-50 text-rose-700 border-rose-200",
   },
-  
+
   expired: {
     label: "หมดอายุ",
     style: "bg-slate-100 text-slate-600 border-slate-200",
@@ -80,7 +80,7 @@ export default function RequestCard({ request, onViewDetail }: Props) {
       </div>
 
       {/* Information */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5 text-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5 text-sm">
         <div>
           <p className="text-slate-400 mb-1">วันที่และเวลา</p>
 
@@ -100,6 +100,20 @@ export default function RequestCard({ request, onViewDetail }: Props) {
 
           <p className="font-medium text-slate-700">
             👤 {request.companionName}
+          </p>
+        </div>
+
+        {/* ค่าบริการรวม */}
+        <div>
+          <p className="text-slate-400 mb-1">ค่าบริการรวม</p>
+
+          <p className="font-bold text-lg text-emerald-600">
+            {request.offeredFee != null
+              ? `฿${request.offeredFee.toLocaleString("th-TH", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}`
+              : "ยังไม่มีข้อมูลราคา"}
           </p>
         </div>
       </div>

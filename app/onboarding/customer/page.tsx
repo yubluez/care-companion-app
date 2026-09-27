@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getMyPhone } from "@/lib/contact";
 
 export default function CustomerOnboardingPage() {
   const router = useRouter();
@@ -48,7 +49,19 @@ export default function CustomerOnboardingPage() {
       // ต้องเป็น Customer เท่านั้น
       if (profile.role !== "customer") {
         if (profile.role === "companion") {
-          router.replace("/onboarding/companion");
+          const { data: comp } = await supabase
+            .from("companion_profiles")
+            .select("verification_status")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (!comp) {
+            router.replace("/onboarding/companion");
+          } else if (comp.verification_status === "approved") {
+            router.replace("/companion");
+          } else {
+            router.replace("/onboarding/companion/status");
+          }
         } else {
           router.replace("/onboarding/role");
         }
@@ -56,8 +69,10 @@ export default function CustomerOnboardingPage() {
         return;
       }
 
+      const myPhone = profile.phone || (await getMyPhone(supabase));
+
       // ถ้ามีข้อมูลครบแล้ว ไม่ต้อง Onboarding ซ้ำ
-      if (profile.full_name && profile.phone) {
+      if (profile.full_name && myPhone) {
         router.replace("/customer");
         return;
       }
@@ -79,7 +94,7 @@ export default function CustomerOnboardingPage() {
           "",
       );
 
-      setPhone(profile.phone || "");
+      setPhone(myPhone);
 
       setLoading(false);
     }

@@ -51,7 +51,19 @@ export default function SelectRolePage() {
         }
 
         if (profile.role === "companion") {
-          router.replace("/onboarding/companion");
+          const { data: companionProfile } = await supabase
+            .from("companion_profiles")
+            .select("verification_status")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (!companionProfile) {
+            router.replace("/onboarding/companion");
+          } else if (companionProfile.verification_status === "approved") {
+            router.replace("/companion");
+          } else {
+            router.replace("/onboarding/companion/status");
+          }
           return;
         }
 
