@@ -258,6 +258,25 @@ export default function NewRequestForm() {
     (travel.meetingType !== "pickup" || Boolean(travel.origin?.name.trim())) &&
     (!travel.returnRequired || Boolean(travel.returnLocation?.name.trim()));
 
+  const targetAreaId =
+    travel.meetingType === "pickup" ? originAreaId : destinationAreaId;
+  const targetAreaStatus =
+    travel.meetingType === "pickup"
+      ? originAreaStatus
+      : destinationAreaStatus;
+  const targetAreaLabel =
+    travel.meetingType === "pickup" ? originAreaLabel : destinationAreaLabel;
+  const setTargetAreaId =
+    travel.meetingType === "pickup" ? setOriginAreaId : setDestinationAreaId;
+  const setTargetAreaStatus =
+    travel.meetingType === "pickup"
+      ? setOriginAreaStatus
+      : setDestinationAreaStatus;
+  const setTargetAreaLabel =
+    travel.meetingType === "pickup"
+      ? setOriginAreaLabel
+      : setDestinationAreaLabel;
+
   const areaValid =
     travel.meetingType === "pickup"
       ? Boolean(originAreaId) && originAreaStatus !== "loading"
@@ -417,6 +436,57 @@ export default function NewRequestForm() {
         supportedTransport={supportedTransport}
       />
 
+      {/* ส่วนแสดง/เลือกเขตพื้นที่ให้บริการ */}
+      <section className="border-b border-slate-100 p-6 sm:p-8">
+        <h3 className="text-lg font-bold text-slate-900 mb-1">
+          พื้นที่ให้บริการ (เขต) *
+        </h3>
+        <p className="text-sm text-slate-500 mb-4">
+          ระบุเขตพื้นที่สำหรับ
+          {travel.meetingType === "pickup" ? " จุดรับ Customer" : " สถานที่ทำธุระ"}
+        </p>
+
+        {targetAreaStatus === "loading" ? (
+          <div className="flex items-center gap-2 text-sm text-slate-500 py-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-sky-600 border-t-transparent" />
+            กำลังตรวจจับเขตพื้นที่จากพิกัดแผนที่อัตโนมัติ...
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <select
+              value={targetAreaId}
+              onChange={(e) => {
+                const val = e.target.value;
+                setTargetAreaId(val);
+                const found = areas.find((a) => a.id === val);
+                if (found) {
+                  setTargetAreaLabel(`${found.province} / ${found.district}`);
+                  setTargetAreaStatus("matched");
+                }
+              }}
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-sky-500"
+            >
+              <option value="">-- เลือกเขตพื้นที่ให้บริการ --</option>
+              {areas.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.province} - เขต{a.district}
+                </option>
+              ))}
+            </select>
+
+            {targetAreaLabel ? (
+              <p className="text-xs text-emerald-600 font-medium">
+                ✓ เขตที่เลือก: {targetAreaLabel}
+              </p>
+            ) : (
+              <p className="text-xs text-amber-600">
+                * หากระบบไม่พบเขตอัตโนมัติ สามารถเลือกเขตจากรายการด้านบนได้โดยตรง
+              </p>
+            )}
+          </div>
+        )}
+      </section>
+
       <RequestPricing
         travel={travel}
         durationMinutes={durationMinutes}
@@ -435,29 +505,54 @@ export default function NewRequestForm() {
           {error}
         </p>
       )}
-      <div className="flex flex-wrap justify-end gap-3 border-t border-slate-100 bg-slate-50 p-6">
-        <a
-          href="/customer"
-          className="cursor-pointer rounded-xl border border-slate-300 px-5 py-3 hover:bg-slate-100 transition text-slate-700 font-semibold"
-        >
-          ยกเลิก
-        </a>
-        <button
-          type="submit"
-          disabled={
-            submitting ||
-            !companion ||
-            !stats ||
-            !categoryId ||
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-slate-100 bg-slate-50 p-6">
+        <div className="text-xs text-slate-500 w-full sm:w-auto">
+          {(!categoryId ||
             !serviceDate ||
             !startTime ||
             !areaValid ||
-            !price
-          }
-          className="cursor-pointer rounded-xl bg-sky-600 px-6 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300 shadow-sm"
-        >
-          {submitting ? "กำลังส่งคำขอ..." : "ส่งคำขอใช้บริการ"}
-        </button>
+            !price) && (
+            <div className="space-y-1 text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3">
+              <span className="font-semibold block mb-0.5">
+                สิ่งที่ยังต้องระบุให้ครบก่อนส่งคำขอ:
+              </span>
+              {!categoryId && <div>• กรุณาเลือกประเภทบริการด้านบน</div>}
+              {!serviceDate && <div>• กรุณาระบุวันที่รับบริการ</div>}
+              {!startTime && <div>• กรุณาระบุเวลาเริ่ม</div>}
+              {!areaValid && (
+                <div>
+                  • กรุณาเลือกพื้นที่ (เขต) ให้บริการในหัวข้อ &ldquo;พื้นที่ให้บริการ (เขต)&rdquo;
+                </div>
+              )}
+              {!price && <div>• กำลังรอผลการคำนวณเส้นทางและราคาค่าบริการ</div>}
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-3 w-full sm:w-auto shrink-0 self-end sm:self-auto">
+          <a
+            href="/customer"
+            className="cursor-pointer rounded-xl border border-slate-300 px-5 py-3 hover:bg-slate-100 transition text-slate-700 font-semibold"
+          >
+            ยกเลิก
+          </a>
+          <button
+            type="submit"
+            disabled={
+              submitting ||
+              !companion ||
+              !stats ||
+              !categoryId ||
+              !serviceDate ||
+              !startTime ||
+              !areaValid ||
+              !price
+            }
+            className="cursor-pointer rounded-xl bg-sky-600 px-6 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300 shadow-sm"
+          >
+            {submitting ? "กำลังส่งคำขอ..." : "ส่งคำขอใช้บริการ"}
+          </button>
+        </div>
       </div>
     </form>
   );
