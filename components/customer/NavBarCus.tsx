@@ -24,12 +24,12 @@ export default async function NavBarCus() {
         <CustomerNavLinks />
 
         <div className="flex items-center gap-2">
-          <Link
+          {/* <Link
             href="/customer/manual"
             className="text-slate-600 font-semibold px-4 py-2 rounded-xl hover:bg-sky-600 hover:text-white transition cursor-pointer"
           >
             การใช้งาน
-          </Link>
+          </Link> */}
 
           <Link href="/customer/profile" className="cursor-pointer">
             {user?.user_metadata?.avatar_url ? (
