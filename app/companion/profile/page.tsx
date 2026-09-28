@@ -5,10 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import ProfileEditor from "@/components/shared/ProfileEditor";
 import ServiceProfileEditor from "@/components/companion/profile/ServiceProfileEditor";
-import ServiceAreasEditor from "@/components/companion/profile/ServiceAreasEditor";
-import AvailabilityEditor from "@/components/companion/profile/AvailabilityEditor";
 import CompanionReviews from "@/components/companion/profile/CompanionReviews";
-import AllReviewsButton from "@/components/companion/profile/AllReviewsButton";
 import { getMyPhone } from "@/lib/contact";
 
 export default async function CompanionProfilePage() {
@@ -95,7 +92,9 @@ export default async function CompanionProfilePage() {
         district: area.district,
       };
     })
-    .filter((a): a is { id: string; province: string; district: string } => Boolean(a));
+    .filter((a): a is { id: string; province: string; district: string } =>
+      Boolean(a),
+    );
 
   const companionAvailability = (availabilityRows ?? []).map((row) => ({
     id: row.id,
@@ -140,7 +139,7 @@ export default async function CompanionProfilePage() {
     "Companion";
 
   const email = user.email || "-";
-  
+
   const phone = profile.phone || (await getMyPhone(supabase)) || "";
 
   const avatarUrl =
@@ -289,13 +288,11 @@ export default async function CompanionProfilePage() {
             userId={user.id}
             initialBio={companionProfile.bio ?? ""}
             initialExperience={companionProfile.experience ?? ""}
+            initialAreas={companionAreas}
+            allAreas={allAreas ?? []}
+            initialAvailability={companionAvailability}
           />
         )}
-
-        
-
-        {/* Availability */}
-        <AvailabilityEditor initialAvailability={companionAvailability} />
 
         {/* Reviews */}
         {reviewsError ? (

@@ -198,7 +198,7 @@ export default function ProfileEditor({
               setSuccess("");
               setIsEditing(true);
             }}
-            className="text-sm text-sky-600 hover:text-sky-700 font-medium px-3 py-1.5 rounded-lg hover:bg-sky-50 transition border border-sky-200 cursor-pointer"
+            className="text-sm text-slate-600 hover:text-slate-700 font-medium px-3 py-1.5 rounded-lg hover:bg-slate-50 transition border border-slate-200 cursor-pointer"
           >
             แก้ไขข้อมูล
           </button>
