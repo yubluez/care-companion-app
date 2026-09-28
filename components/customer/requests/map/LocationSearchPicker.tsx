@@ -61,7 +61,7 @@ export default function LocationSearchPicker({
 
   function handleMapChange(location: MapLocation) {
     onChange({
-      name: "",
+      name: value?.name || "",
       lat: location.lat,
       lng: location.lng,
     });

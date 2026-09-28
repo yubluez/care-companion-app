@@ -67,6 +67,21 @@ function MapController({ value }: { value: MapLocation | null }) {
   return null;
 }
 
+// ช่วยปรับขนาดแผนที่อัตโนมัติเมื่อเปิด/ขยายขึ้นมา
+function MapResizer() {
+  const map = useMap();
+
+  useEffect(() => {
+    map.invalidateSize();
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [map]);
+
+  return null;
+}
+
 export default function LocationMap({ value, onChange }: Props) {
   return (
     <div className="h-[350px] w-full overflow-hidden rounded-xl border border-slate-200">
@@ -83,6 +98,8 @@ export default function LocationMap({ value, onChange }: Props) {
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        <MapResizer />
 
         <MapController value={value} />
 
