@@ -31,11 +31,6 @@ export default function RequestPricing({
         distances={supportedTransport && travelValid ? distances : null}
         calculating={supportedTransport && travelValid && !distances}
       />
-
-      <p className="text-xs text-slate-500">
-        ยอดแสดงเป็นประมาณการ Server จะคำนวณใหม่เมื่อส่งคำขอ
-        ยอดที่บันทึกอาจต่างเล็กน้อยหากเส้นทางเปลี่ยน
-      </p>
     </section>
   );
 }

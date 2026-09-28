@@ -100,7 +100,7 @@ export default function MapPicker({
               isExpanded
                 ? "border border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
                 : value
-                  ? "border border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100"
+                  ? "text-sky-700"
                   : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
             }`}
           >
@@ -112,7 +112,7 @@ export default function MapPicker({
             ) : value ? (
               <>
                 <Map className="h-4 w-4 text-sky-600" />
-                <span>ขยายดูแผนที่ / ปรับหมุด</span>
+                <span>ขยายดูแผนที่</span>
                 <ChevronDown className="h-4 w-4 text-slate-400" />
               </>
             ) : (
@@ -147,14 +147,14 @@ export default function MapPicker({
               )}
             </div>
 
-            <button
+            {/* <button
               type="button"
               onClick={() => setIsExpanded(false)}
               className="inline-flex items-center justify-center gap-1.5 self-end sm:self-auto rounded-lg bg-sky-600 px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-sky-700 cursor-pointer active:scale-95"
             >
               <Check className="h-3.5 w-3.5" />
               <span>{value ? "เสร็จสิ้น / ย่อแผนที่" : "ย่อแผนที่"}</span>
-            </button>
+            </button> */}
           </div>
         </div>
       )}

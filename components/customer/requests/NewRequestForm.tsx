@@ -341,22 +341,79 @@ export default function NewRequestForm() {
     event.preventDefault();
     if (submitting) return;
     setError("");
+
+    const missingFields: string[] = [];
+
+    if (!companionId || !companion || !stats) {
+      missingFields.push("กรุณาเลือก Companion (ผู้ร่วมเดินทาง)");
+    }
+    if (!categoryId) {
+      missingFields.push("กรุณาเลือกประเภทบริการ");
+    }
+    if (!serviceDate) {
+      missingFields.push("กรุณาระบุวันที่รับบริการ");
+    }
+    if (!startTime) {
+      missingFields.push("กรุณาระบุเวลาเริ่มรับบริการ");
+    }
     if (
-      !companionId ||
-      !companion ||
-      !stats ||
-      !categoryId ||
-      !serviceDate ||
-      !startTime ||
-      !areaValid ||
-      !travelValid ||
-      !supportedTransport ||
-      !price ||
-      !travel.destination
+      travel.meetingType === "pickup" &&
+      (!travel.origin || !travel.origin.name.trim())
     ) {
-      setError("กรุณาเลือก Companion และกรอกข้อมูลให้ครบ พร้อมรอผลคำนวณราคา");
+      missingFields.push("กรุณาระบุจุดรับ Customer และเลือกตำแหน่งบนแผนที่");
+    }
+    if (!travel.destination || !travel.destination.name.trim()) {
+      missingFields.push(
+        travel.meetingType === "pickup"
+          ? "กรุณาระบุสถานที่ทำธุระ และเลือกตำแหน่งบนแผนที่"
+          : "กรุณาระบุสถานที่ทำธุระ / จุดนัดพบ และเลือกตำแหน่งบนแผนที่",
+      );
+    }
+    if (
+      travel.returnRequired &&
+      (!travel.returnLocation || !travel.returnLocation.name.trim())
+    ) {
+      missingFields.push("กรุณาระบุสถานที่ส่งกลับ และเลือกตำแหน่งบนแผนที่");
+    }
+    if (!supportedTransport) {
+      missingFields.push(
+        "วิธีเดินทางที่เลือกยังไม่รองรับการคำนวณเส้นทาง กรุณาเลือกวิธีเดินทางอื่น",
+      );
+    }
+    if (targetAreaStatus === "loading") {
+      missingFields.push("กำลังตรวจจับเขตพื้นที่จากพิกัดแผนที่ กรุณารอสักครู่");
+    } else if (!areaValid) {
+      missingFields.push(
+        "กรุณาเลือกพื้นที่ (เขต) ให้บริการในหัวข้อ “พื้นที่ให้บริการ (เขต)”",
+      );
+    }
+    if (!price && missingFields.length === 0) {
+      missingFields.push("กำลังรอผลการคำนวณเส้นทางและราคาค่าบริการ กรุณารอสักครู่");
+    }
+
+    if (missingFields.length > 0) {
+      setError("กรุณากรอกข้อมูลให้ครบถ้วนก่อนส่งคำขอ");
+      await Swal.fire({
+        icon: "warning",
+        title: "กรอกข้อมูลไม่ครบถ้วน",
+        html: `
+          <div style="text-align: left; font-size: 14px;">
+            <p style="margin-bottom: 8px; color: #475569;">กรุณาระบุข้อมูลต่อไปนี้ให้ครบถ้วนก่อนส่งคำขอ:</p>
+            <ul style="list-style-type: disc; padding-left: 20px; color: #e11d48; line-height: 1.6;">
+              ${missingFields.map((field) => `<li>${field}</li>`).join("")}
+            </ul>
+          </div>
+        `,
+        confirmButtonColor: "#0284c7",
+        confirmButtonText: "ตกลงเพื่อแก้ไข",
+      });
       return;
     }
+
+    if (!companionId || !travel.destination) {
+      return;
+    }
+
     setSubmitting(true);
     try {
       const result = await createServiceRequest({
@@ -406,6 +463,7 @@ export default function NewRequestForm() {
 
   return (
     <form
+      noValidate
       onSubmit={handleSubmit}
       className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
     >
@@ -505,54 +563,20 @@ export default function NewRequestForm() {
           {error}
         </p>
       )}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-slate-100 bg-slate-50 p-6">
-        <div className="text-xs text-slate-500 w-full sm:w-auto">
-          {(!categoryId ||
-            !serviceDate ||
-            !startTime ||
-            !areaValid ||
-            !price) && (
-            <div className="space-y-1 text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3">
-              <span className="font-semibold block mb-0.5">
-                สิ่งที่ยังต้องระบุให้ครบก่อนส่งคำขอ:
-              </span>
-              {!categoryId && <div>• กรุณาเลือกประเภทบริการด้านบน</div>}
-              {!serviceDate && <div>• กรุณาระบุวันที่รับบริการ</div>}
-              {!startTime && <div>• กรุณาระบุเวลาเริ่ม</div>}
-              {!areaValid && (
-                <div>
-                  • กรุณาเลือกพื้นที่ (เขต) ให้บริการในหัวข้อ &ldquo;พื้นที่ให้บริการ (เขต)&rdquo;
-                </div>
-              )}
-              {!price && <div>• กำลังรอผลการคำนวณเส้นทางและราคาค่าบริการ</div>}
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-end gap-3 w-full sm:w-auto shrink-0 self-end sm:self-auto">
-          <a
-            href="/customer"
-            className="cursor-pointer rounded-xl border border-slate-300 px-5 py-3 hover:bg-slate-100 transition text-slate-700 font-semibold"
-          >
-            ยกเลิก
-          </a>
-          <button
-            type="submit"
-            disabled={
-              submitting ||
-              !companion ||
-              !stats ||
-              !categoryId ||
-              !serviceDate ||
-              !startTime ||
-              !areaValid ||
-              !price
-            }
-            className="cursor-pointer rounded-xl bg-sky-600 px-6 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300 shadow-sm"
-          >
-            {submitting ? "กำลังส่งคำขอ..." : "ส่งคำขอใช้บริการ"}
-          </button>
-        </div>
+      <div className="flex justify-end gap-3 w-full sm:w-auto shrink-0 self-end sm:self-auto p-6">
+        <a
+          href="/customer"
+          className="cursor-pointer rounded-xl border border-slate-300 px-5 py-3 hover:bg-slate-100 transition text-slate-700 font-semibold"
+        >
+          ยกเลิก
+        </a>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="cursor-pointer rounded-xl bg-sky-600 px-6 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300 shadow-sm"
+        >
+          {submitting ? "กำลังส่งคำขอ..." : "ส่งคำขอใช้บริการ"}
+        </button>
       </div>
     </form>
   );

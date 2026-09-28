@@ -3,7 +3,8 @@
 import { ReactNode } from "react";
 import LocationSearchPicker from "../map/LocationSearchPicker";
 import type { TravelData } from "./types";
-import { Handshake, House, CarFront, MapPin, LucideIcon } from "lucide-react";
+import { Handshake, House, CarFront, MapPin, LucideIcon, CircleStar } from "lucide-react";
+import Swal from "sweetalert2";
 
 type Props = {
   value: TravelData;
@@ -178,24 +179,10 @@ export default function TravelSection({ value, onChange }: Props) {
       {/* จุดส่งกลับ */}
       {value.returnRequired && (
         <div className="space-y-3">
-          <h3 className="font-semibold text-slate-800">จุดส่งกลับ</h3>
-
-          {value.meetingType === "pickup" && value.origin && (
-            <button
-              type="button"
-              onClick={() =>
-                update({
-                  returnLocation: {
-                    ...value.origin!,
-                  },
-                })
-              }
-              className="cursor-pointer rounded-xl border border-sky-300 px-4 py-2 text-sm font-semibold text-sky-700 hover:bg-sky-50 transition shadow-sm"
-            >
-              ใช้ตำแหน่งเดียวกับจุดรับ
-            </button>
-          )}
-
+          <SectionTitle icon={House} color="pink">
+            จุดส่งกลับ
+          </SectionTitle>
+          
           <LocationSearchPicker
             title="เลือกสถานที่ส่งกลับ"
             value={value.returnLocation}
@@ -203,6 +190,39 @@ export default function TravelSection({ value, onChange }: Props) {
               update({
                 returnLocation: place,
               })
+            }
+            extraAction={
+              (value.meetingType === "pickup" || Boolean(value.origin)) ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (value.origin && (value.origin.lat || value.origin.name)) {
+                      update({
+                        returnLocation: {
+                          ...value.origin,
+                        },
+                      });
+                    } else {
+                      void Swal.fire({
+                        icon: "info",
+                        title: "ยังไม่ได้ระบุจุดรับ",
+                        text: "กรุณาระบุจุดรับ Customer หรือปักหมุดจุดรับด้านบนก่อนกดปุ่มนี้",
+                        confirmButtonColor: "#0284c7",
+                        confirmButtonText: "ตกลง",
+                      });
+                    }
+                  }}
+                  className={`cursor-pointer inline-flex items-center gap-1.5 rounded-xl border
+                              px-3.5 py-2 text-xs sm:text-sm font-semibold transition shadow-xs ${
+                    value.origin && (value.origin.lat || value.origin.name)
+                      ? "border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100"
+                      : "border-slate-200 bg-slate-100 text-slate-500 hover:bg-slate-200"
+                  }`}
+                >
+                  <CircleStar className="h-4 w-4 text-sky-600" />
+                  <span>ใช้ตำแหน่งเดียวกับจุดรับ</span>
+                </button>
+              ) : undefined
             }
           />
         </div>

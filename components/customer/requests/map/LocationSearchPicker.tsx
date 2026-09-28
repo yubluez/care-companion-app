@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyboardEvent, useState } from "react";
+import { KeyboardEvent, type ReactNode, useEffect, useState } from "react";
 import MapPicker from "./MapPicker";
 import type { MapLocation } from "./LocationMap";
 
@@ -18,18 +18,28 @@ type Props = {
   title: string;
   value: SelectedPlace | null;
   onChange: (place: SelectedPlace) => void;
+  extraAction?: ReactNode;
 };
 
 export default function LocationSearchPicker({
   title,
   value,
   onChange,
+  extraAction,
 }: Props) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(value?.name || "");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
+
+  useEffect(() => {
+    if (value?.name) {
+      setQuery(value.name);
+    } else if (!value) {
+      setQuery("");
+    }
+  }, [value?.name, value]);
 
   async function handleSearch() {
     if (query.trim().length < 3 || loading) return;
@@ -72,12 +82,16 @@ export default function LocationSearchPicker({
 
   return (
     <div className="space-y-4 rounded-2xl border border-slate-200 p-5">
-      <div>
-        <h3 className="font-bold text-slate-800">{title}</h3>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h3 className="font-bold text-slate-800">{title}</h3>
 
-        <p className="mt-1 text-sm text-slate-500">
-          ค้นหาสถานที่หรือคลิกปักหมุดบนแผนที่
-        </p>
+          <p className="mt-1 text-sm text-slate-500">
+            ค้นหาสถานที่หรือคลิกปักหมุดบนแผนที่
+          </p>
+        </div>
+
+        {extraAction && <div>{extraAction}</div>}
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row">

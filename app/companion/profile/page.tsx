@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 
 import ProfileEditor from "@/components/shared/ProfileEditor";
 import ServiceProfileEditor from "@/components/companion/profile/ServiceProfileEditor";
+import ServiceAreasEditor from "@/components/companion/profile/ServiceAreasEditor";
+import AvailabilityEditor from "@/components/companion/profile/AvailabilityEditor";
 import CompanionReviews from "@/components/companion/profile/CompanionReviews";
 import AllReviewsButton from "@/components/companion/profile/AllReviewsButton";
 import { getMyPhone } from "@/lib/contact";
@@ -41,6 +43,66 @@ export default async function CompanionProfilePage() {
   if (companionError) {
     console.error("Load companion profile:", companionError);
   }
+
+  // พื้นที่ให้บริการของ Companion
+  const { data: serviceAreaRows, error: serviceAreaError } = await supabase
+    .from("companion_service_areas")
+    .select(
+      `
+      area_id,
+      areas (
+        id,
+        province,
+        district
+      )
+    `,
+    )
+    .eq("companion_id", user.id);
+
+  if (serviceAreaError) {
+    console.error("Load companion service areas:", serviceAreaError);
+  }
+
+  // วันและเวลาที่สะดวกของ Companion
+  const { data: availabilityRows, error: availabilityError } = await supabase
+    .from("companion_availability")
+    .select("id, day_of_week, start_time, end_time")
+    .eq("companion_id", user.id)
+    .order("day_of_week");
+
+  if (availabilityError) {
+    console.error("Load companion availability:", availabilityError);
+  }
+
+  // รายชื่อพื้นที่ทั้งหมดในระบบ
+  const { data: allAreas, error: allAreasError } = await supabase
+    .from("areas")
+    .select("id, province, district")
+    .order("province")
+    .order("district");
+
+  if (allAreasError) {
+    console.error("Load all areas:", allAreasError);
+  }
+
+  const companionAreas = (serviceAreaRows ?? [])
+    .map((row) => {
+      const area = Array.isArray(row.areas) ? row.areas[0] : row.areas;
+      if (!area) return null;
+      return {
+        id: area.id,
+        province: area.province,
+        district: area.district,
+      };
+    })
+    .filter((a): a is { id: string; province: string; district: string } => Boolean(a));
+
+  const companionAvailability = (availabilityRows ?? []).map((row) => ({
+    id: row.id,
+    day_of_week: Number(row.day_of_week),
+    start_time: String(row.start_time),
+    end_time: String(row.end_time),
+  }));
 
   // จำนวนงานที่เสร็จสิ้น
   const { count: completedJobs, error: jobsError } = await supabase
@@ -229,6 +291,11 @@ export default async function CompanionProfilePage() {
             initialExperience={companionProfile.experience ?? ""}
           />
         )}
+
+        
+
+        {/* Availability */}
+        <AvailabilityEditor initialAvailability={companionAvailability} />
 
         {/* Reviews */}
         {reviewsError ? (
