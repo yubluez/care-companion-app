@@ -190,7 +190,10 @@ export default function AdminRequestActions({
     return true;
   });
 
-  const canCancel = currentStatus === "accepted" || currentStatus === "in_progress";
+  const canCancel =
+    currentStatus === "pending" ||
+    currentStatus === "accepted" ||
+    currentStatus === "in_progress";
   const canRebook =
     currentStatus === "accepted" ||
     currentStatus === "in_progress" ||
@@ -212,26 +215,28 @@ export default function AdminRequestActions({
       )}
 
       {/* Action Buttons */}
-      <div className={`flex flex-wrap items-center gap-2.5 ${compact ? "mt-3" : ""}`}>
-        {canCancel && (
-          <button
-            type="button"
-            onClick={() => setShowCancelModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 hover:border-rose-300 cursor-pointer shadow-sm"
-          >
-            <span>🚫</span>
-            <span>ยกเลิกงาน (ติดต่อไม่ได้)</span>
-          </button>
-        )}
-
+      <div className={`flex flex-wrap items-center justify-between ${compact ? "mt-3 w-full" : ""}`}>
         {canRebook && (
           <button
             type="button"
             onClick={() => setShowRebookModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-700 cursor-pointer shadow-sm"
+            className="inline-flex items-center justify-center rounded-xl bg-sky-600 p-3 text-xs font-semibold text-white transition
+                        hover:bg-sky-700 cursor-pointer shadow-sm"
           >
             <span>⚡</span>
-            <span>จองด่วนเลือก Companion ใหม่</span>
+            <span>เลือก Companion ใหม่</span>
+          </button>
+        )}
+
+        {canCancel && (
+          <button
+            type="button"
+            onClick={() => setShowCancelModal(true)}
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs
+                        font-semibold text-rose-700 transition hover:bg-rose-100 hover:border-rose-300 cursor-pointer shadow-sm"
+          >
+            <span>🚫</span>
+            <span>ยกเลิกงาน</span>
           </button>
         )}
       </div>
@@ -252,7 +257,7 @@ export default function AdminRequestActions({
                     ยกเลิกคำขอใช้บริการ
                   </h3>
                   <p className="text-xs text-slate-500">
-                    สำหรับกรณีที่ลูกค้าติดต่อ Companion ไม่ได้ หรือเกิดเหตุขัดข้อง
+                    สำหรับกรณีที่ลูกค้าขอยกเลิก ไม่มีผู้รับงาน หรือติดต่อไม่ได้
                   </p>
                 </div>
               </div>
@@ -273,7 +278,7 @@ export default function AdminRequestActions({
               <p>
                 <strong>ผู้ดูแลปัจจุบัน:</strong>{" "}
                 <span className="text-rose-600 font-semibold">
-                  {currentCompanionName || "ยังไม่มีผู้รับงาน"}
+                  {currentCompanionName || "ยังไม่มีผู้รับงาน (รอรับงาน)"}
                 </span>
               </p>
               <p>
@@ -289,9 +294,10 @@ export default function AdminRequestActions({
 
               <div className="space-y-2">
                 {[
+                  "ลูกค้าขอยกเลิกคำขอ",
+                  "ไม่มีผู้ดูแลรับงาน / เกินเวลานัดหมาย",
                   "ลูกค้าติดต่อผู้ดูแลไม่ได้",
                   "ผู้ดูแลขอสละสิทธิ์กะทันหัน",
-                  "ผู้ดูแลไม่มาตามเวลานัดหมาย",
                   "อื่นๆ",
                 ].map((reason) => (
                   <label
@@ -338,7 +344,7 @@ export default function AdminRequestActions({
                   <span className="font-bold text-sky-900">
                     เปิดระบบจองด่วนเลือก Companion ใหม่ให้ลูกค้าทันที
                   </span>
-                  <p className="mt-0.5 text-sky-700">
+                  <p className="mt-0.5 text-[11px] text-sky-700">
                     หลังจากยกเลิก จะเปิดหน้าต่างให้คุณเลือกผู้ดูแลที่ว่างเพื่อมอบหมายงานนี้ให้ลูกค้าต่อทันที
                   </p>
                 </div>
@@ -357,7 +363,7 @@ export default function AdminRequestActions({
                 type="button"
                 onClick={() => setShowCancelModal(false)}
                 disabled={isPending}
-                className="rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                className="rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
               >
                 ย้อนกลับ
               </button>
@@ -366,7 +372,7 @@ export default function AdminRequestActions({
                 type="button"
                 onClick={handleCancelSubmit}
                 disabled={isPending}
-                className="rounded-xl bg-rose-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-rose-700 transition disabled:opacity-50 cursor-pointer shadow-sm"
+                className="rounded-xl bg-rose-600 px-5 py-2 text-xs font-semibold text-white hover:bg-rose-700 transition disabled:opacity-50 cursor-pointer shadow-sm"
               >
                 {isPending
                   ? "กำลังยกเลิก..."
@@ -388,7 +394,7 @@ export default function AdminRequestActions({
             {/* Modal Header */}
             <div className="flex items-start justify-between border-b border-slate-100 p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-xl font-bold text-sky-700">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-lg font-bold text-sky-700">
                   ⚡
                 </div>
                 <div>
@@ -414,7 +420,7 @@ export default function AdminRequestActions({
               {/* Job summary bar */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/60 pb-2 mb-2">
-                  <span className="font-semibold text-slate-500">
+                  <span className="font-semibold text-slate-600">
                     รายละเอียดคำขอเดิมของลูกค้า:{" "}
                     <strong className="text-slate-900">{customerName}</strong>
                   </span>
@@ -424,15 +430,15 @@ export default function AdminRequestActions({
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-slate-700">
                   <div>
-                    <span className="text-slate-400">วันที่: </span>
+                    <span className="text-slate-500">วันที่: </span>
                     <strong>{serviceDate}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-400">เวลา: </span>
+                    <span className="text-slate-500">เวลา: </span>
                     <strong>{startTime?.slice(0, 5)} น.</strong>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-slate-400">ปลายทาง: </span>
+                    <span className="text-slate-500">ปลายทาง: </span>
                     <strong>{destinationName || "-"}</strong>
                   </div>
                 </div>
@@ -446,7 +452,7 @@ export default function AdminRequestActions({
                     placeholder="ค้นหาชื่อ หรือเบอร์โทรศัพท์ Companion..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="min-w-0 flex-1 rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-sky-500"
+                    className="min-w-0 flex-1 rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 outline-none focus:border-sky-500"
                   />
 
                   {/* Filter tabs */}
@@ -454,9 +460,9 @@ export default function AdminRequestActions({
                     <button
                       type="button"
                       onClick={() => setFilterMode("all")}
-                      className={`rounded-lg px-2.5 py-1 font-medium transition cursor-pointer ${
+                      className={`rounded-lg px-2.5 py-1 font-semibold transition cursor-pointer ${
                         filterMode === "all"
-                          ? "bg-white text-sky-700 font-bold shadow-xs"
+                          ? "bg-white text-sky-700 shadow-xs"
                           : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
@@ -465,9 +471,9 @@ export default function AdminRequestActions({
                     <button
                       type="button"
                       onClick={() => setFilterMode("time")}
-                      className={`rounded-lg px-2.5 py-1 font-medium transition cursor-pointer ${
+                      className={`rounded-lg px-2.5 py-1 font-semibold transition cursor-pointer ${
                         filterMode === "time"
-                          ? "bg-white text-sky-700 font-bold shadow-xs"
+                          ? "bg-white text-sky-700 shadow-xs"
                           : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
@@ -476,9 +482,9 @@ export default function AdminRequestActions({
                     <button
                       type="button"
                       onClick={() => setFilterMode("area")}
-                      className={`rounded-lg px-2.5 py-1 font-medium transition cursor-pointer ${
+                      className={`rounded-lg px-2.5 py-1 font-semibold transition cursor-pointer ${
                         filterMode === "area"
-                          ? "bg-white text-sky-700 font-bold shadow-xs"
+                          ? "bg-white text-sky-700 shadow-xs"
                           : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
@@ -490,7 +496,7 @@ export default function AdminRequestActions({
 
               {/* Companions List */}
               <div className="space-y-2.5">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                   เลือกผู้ดูแล (Companion) ที่พร้อมให้บริการ ({filteredCompanions.length})
                 </p>
 
@@ -514,7 +520,7 @@ export default function AdminRequestActions({
                         <div
                           key={comp.id}
                           onClick={() => setSelectedCompanionId(comp.id)}
-                          className={`flex items-start gap-3.5 rounded-2xl border p-3.5 cursor-pointer transition ${
+                          className={`flex items-start gap-3 rounded-2xl border p-3 cursor-pointer transition ${
                             isSelected
                               ? "border-sky-600 bg-sky-50/50 shadow-xs ring-1 ring-sky-600"
                               : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/70"
@@ -657,7 +663,7 @@ export default function AdminRequestActions({
                   type="button"
                   onClick={() => setShowRebookModal(false)}
                   disabled={isPending}
-                  className="rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+                  className="rounded-xl px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition cursor-pointer"
                 >
                   ยกเลิก
                 </button>
@@ -666,7 +672,7 @@ export default function AdminRequestActions({
                   type="button"
                   onClick={handleRebookSubmit}
                   disabled={isPending || !selectedCompanionId}
-                  className="rounded-xl bg-sky-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-sky-700 transition disabled:opacity-50 cursor-pointer shadow-sm"
+                  className="rounded-xl bg-sky-600 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-700 transition disabled:opacity-50 cursor-pointer shadow-sm"
                 >
                   {isPending ? "กำลังบันทึก..." : "ยืนยันจองด่วนให้ลูกค้า"}
                 </button>
