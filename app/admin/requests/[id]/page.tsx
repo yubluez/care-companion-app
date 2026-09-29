@@ -141,7 +141,7 @@ export default async function AdminRequestDetailPage({ params }: Props) {
 
             <div className="flex flex-wrap items-center gap-3">
               <RequestStatusBadge status={status} />
-              <AdminRequestActions
+              {/* <AdminRequestActions
                 requestId={request.id}
                 currentStatus={status}
                 currentCompanionName={companion?.full_name ?? null}
@@ -150,7 +150,7 @@ export default async function AdminRequestDetailPage({ params }: Props) {
                 destinationName={request.destination_name}
                 offeredFee={request.offered_fee}
                 customerName={customer?.full_name ?? null}
-              />
+              /> */}
             </div>
           </div>
         </section>
