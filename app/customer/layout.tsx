@@ -1,3 +1,4 @@
+import EmergencyContactButton from "@/components/customer/EmergencyContactButton";
 import NavBarCus from "@/components/customer/NavBarCus";
 
 export default function CustomerLayout({
@@ -10,6 +11,8 @@ export default function CustomerLayout({
       <NavBarCus />
 
       {children}
+
+      <EmergencyContactButton />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { getUser } from "@/lib/actions/auth";
 import CustomerNavLinks from "./CustomerNavLinks";
+import EmergencyContactButton from "./EmergencyContactButton";
 
 export default async function NavBarCus() {
   const user = await getUser();
