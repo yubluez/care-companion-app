@@ -35,7 +35,7 @@ export default function ReviewActions({ companionId }: Props) {
       showCancelButton: true,
       confirmButtonText: "ยืนยันอนุมัติ",
       cancelButtonText: "ยกเลิก",
-      confirmButtonColor: "#059669",
+      confirmButtonColor: "#0284c7",
       cancelButtonColor: "#64748b",
       reverseButtons: true,
     });
@@ -53,7 +53,7 @@ export default function ReviewActions({ companionId }: Props) {
           title: "ไม่สามารถอนุมัติได้",
           text: result.error || "กรุณาลองใหม่อีกครั้ง",
           icon: "error",
-          confirmButtonColor: "#059669",
+          confirmButtonColor: "#0284c7",
           confirmButtonText: "ตกลง",
         });
         setError(result.error || "ไม่สามารถอนุมัติได้");
@@ -64,7 +64,7 @@ export default function ReviewActions({ companionId }: Props) {
         title: "อนุมัติสำเร็จ!",
         text: "อนุมัติใบสมัคร Companion เรียบร้อยแล้ว",
         icon: "success",
-        confirmButtonColor: "#059669",
+        confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",
       });
 
@@ -76,7 +76,7 @@ export default function ReviewActions({ companionId }: Props) {
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง",
         icon: "error",
-        confirmButtonColor: "#059669",
+        confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",
       });
       setError("เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -135,7 +135,7 @@ export default function ReviewActions({ companionId }: Props) {
       await Swal.fire({
         title: "ปฏิเสธใบสมัครเรียบร้อยแล้ว",
         icon: "success",
-        confirmButtonColor: "#059669",
+        confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",
       });
 
@@ -147,7 +147,7 @@ export default function ReviewActions({ companionId }: Props) {
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถดำเนินการได้ กรุณาลองใหม่",
         icon: "error",
-        confirmButtonColor: "#059669",
+        confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",
       });
       setError("เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -228,7 +228,7 @@ export default function ReviewActions({ companionId }: Props) {
           type="button"
           disabled={loading !== null}
           onClick={handleApprove}
-          className="cursor-pointer rounded-xl bg-emerald-600 py-3 font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 shadow-sm"
+          className="cursor-pointer rounded-xl bg-sky-600 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300 shadow-sm"
         >
           {loading === "approve" ? "กำลังอนุมัติ..." : "อนุมัติ Companion"}
         </button>

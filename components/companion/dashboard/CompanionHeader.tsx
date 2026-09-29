@@ -23,7 +23,7 @@ export default function CompanionHeader({
             className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-sm"
           />
         ) : (
-          <div className="w-16 h-16 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-xl font-bold">
+          <div className="w-16 h-16 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-xl font-bold">
             {(fullName || "C").charAt(0).toUpperCase()}
           </div>
         )}

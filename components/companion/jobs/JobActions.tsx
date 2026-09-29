@@ -29,7 +29,7 @@ export default function JobActions({ requestId, status }: Props) {
       showCancelButton: true,
       confirmButtonText: "เริ่มงานเลย",
       cancelButtonText: "ยกเลิก",
-      confirmButtonColor: "#7c3aed",
+      confirmButtonColor: "#0284c7",
       cancelButtonColor: "#64748b",
       reverseButtons: true,
     });
@@ -47,7 +47,7 @@ export default function JobActions({ requestId, status }: Props) {
           title: "ไม่สามารถเริ่มงานได้",
           text: result.error || "กรุณาลองใหม่อีกครั้ง",
           icon: "error",
-          confirmButtonColor: "#7c3aed",
+          confirmButtonColor: "#0284c7",
           confirmButtonText: "ตกลง",
         });
         setError(result.error || "ไม่สามารถเริ่มงานได้");
@@ -58,7 +58,7 @@ export default function JobActions({ requestId, status }: Props) {
         title: "เริ่มให้บริการแล้ว!",
         text: "ระบบได้บันทึกเวลาเริ่มงานเรียบร้อยแล้ว ขอให้การบริการราบรื่นครับ",
         icon: "success",
-        confirmButtonColor: "#7c3aed",
+        confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",
       });
 
@@ -69,7 +69,7 @@ export default function JobActions({ requestId, status }: Props) {
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง",
         icon: "error",
-        confirmButtonColor: "#7c3aed",
+        confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",
       });
       setError("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
@@ -150,7 +150,7 @@ export default function JobActions({ requestId, status }: Props) {
           type="button"
           disabled={loading}
           onClick={handleStart}
-          className="w-full cursor-pointer rounded-xl bg-violet-600 py-3 font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="w-full cursor-pointer rounded-xl bg-sky-600 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           {loading ? "กำลังเริ่มงาน..." : "เริ่มให้บริการ"}
         </button>

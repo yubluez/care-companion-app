@@ -138,10 +138,10 @@ export default function SelectRolePage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center py-12 px-4 sm:px-6 relative overflow-hidden bg-gradient-to-b from-slate-50 via-sky-50/20 to-violet-50/20">
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center py-12 px-4 sm:px-6 relative overflow-hidden bg-gradient-to-b from-slate-50 via-sky-50/20 to-sky-50/20">
       {/* Decorative background orbs */}
       <div className="absolute top-12 -left-20 w-80 h-80 bg-sky-200/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-12 -right-20 w-80 h-80 bg-violet-200/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-12 -right-20 w-80 h-80 bg-sky-200/30 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-4xl text-center space-y-4">
         {/* Top welcome pill */}
@@ -252,27 +252,27 @@ export default function SelectRolePage() {
             disabled={selectedRole !== null}
             className={`group relative flex flex-col justify-between rounded-3xl border-2 bg-white p-7 sm:p-8 text-left transition-all duration-300 shadow-sm cursor-pointer disabled:cursor-not-allowed ${
               selectedRole === "companion"
-                ? "border-violet-600 ring-4 ring-violet-100 bg-violet-50/30 scale-[1.02]"
+                ? "border-sky-600 ring-4 ring-sky-100 bg-sky-50/30 scale-[1.02]"
                 : selectedRole === "customer"
                   ? "opacity-50 border-slate-200"
-                  : "border-slate-200 hover:border-violet-500 hover:shadow-xl hover:-translate-y-1"
+                  : "border-slate-200 hover:border-sky-500 hover:shadow-xl hover:-translate-y-1"
             }`}
           >
             <div>
               <div className="flex items-center justify-between mb-5">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-600 to-purple-500 text-white shadow-md shadow-violet-500/25 transition-transform duration-300 group-hover:scale-105">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-sky-600 to-blue-500 text-white shadow-md shadow-sky-500/25 transition-transform duration-300 group-hover:scale-105">
                   <HeartHandshake className="w-8 h-8" />
                 </div>
-                <span className="rounded-full bg-violet-50 border border-violet-200 px-3 py-1 text-xs font-bold text-violet-700">
+                <span className="rounded-full bg-sky-50 border border-sky-200 px-3 py-1 text-xs font-bold text-sky-700">
                   สำหรับผู้ให้บริการ
                 </span>
               </div>
 
               <div className="space-y-1.5 mb-3">
-                <h2 className="text-2xl font-bold text-slate-900 group-hover:text-violet-600 transition">
+                <h2 className="text-2xl font-bold text-slate-900 group-hover:text-sky-600 transition">
                   ผู้ร่วมเดินทาง
                 </h2>
-                <p className="text-sm font-semibold text-violet-600">Companion</p>
+                <p className="text-sm font-semibold text-sky-600">Companion</p>
               </div>
 
               <p className="text-sm text-slate-600 leading-relaxed mb-6">
@@ -282,7 +282,7 @@ export default function SelectRolePage() {
               {/* Feature checklist */}
               <div className="space-y-2 border-t border-slate-100 pt-4 text-xs sm:text-sm text-slate-600">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-violet-600 shrink-0" />
+                  <ShieldCheck className="w-4 h-4 text-sky-600 shrink-0" />
                   <span>กำหนดวัน เวลา และพื้นที่ให้บริการได้อิสระ</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -299,12 +299,12 @@ export default function SelectRolePage() {
             {/* Action CTA */}
             <div className="mt-8">
               {selectedRole === "companion" ? (
-                <div className="flex items-center justify-center gap-2 rounded-2xl bg-violet-600 py-3.5 text-sm font-semibold text-white shadow-sm">
+                <div className="flex items-center justify-center gap-2 rounded-2xl bg-sky-600 py-3.5 text-sm font-semibold text-white shadow-sm">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   <span>กำลังตั้งค่าบัญชี Companion...</span>
                 </div>
               ) : (
-                <div className="flex items-center justify-between rounded-2xl border border-violet-200 bg-violet-50/70 px-5 py-3.5 text-sm font-semibold text-violet-700 transition duration-300 group-hover:bg-violet-600 group-hover:text-white group-hover:border-violet-600">
+                <div className="flex items-center justify-between rounded-2xl border border-sky-200 bg-sky-50/70 px-5 py-3.5 text-sm font-semibold text-sky-700 transition duration-300 group-hover:bg-sky-600 group-hover:text-white group-hover:border-sky-600">
                   <span>สมัครเป็น Companion</span>
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </div>

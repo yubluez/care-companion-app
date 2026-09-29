@@ -202,7 +202,7 @@ export default async function CompanionJobsPage() {
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-8">
-          <p className="mb-1 font-semibold text-violet-600">งานที่ตอบรับ</p>
+          <p className="mb-1 font-semibold text-sky-600">งานที่ตอบรับ</p>
 
           <h1 className="text-3xl font-bold text-slate-900">งานของฉัน</h1>
 

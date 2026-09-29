@@ -152,7 +152,7 @@ function AdminAction({
 
       <Link
         href={href}
-        className="mt-5 inline-flex rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 cursor-pointer shadow-sm"
+        className="mt-5 inline-flex rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 cursor-pointer shadow-sm"
       >
         {button}
       </Link>

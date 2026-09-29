@@ -97,7 +97,7 @@ export default function CompanionApplicationsTable({
                     <td className="px-6 py-4 text-right">
                       <Link
                         href={`/admin/companions/${application.userId}`}
-                        className="inline-flex rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 cursor-pointer shadow-sm"
+                        className="inline-flex rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700 cursor-pointer shadow-sm"
                       >
                         ดูใบสมัคร
                       </Link>

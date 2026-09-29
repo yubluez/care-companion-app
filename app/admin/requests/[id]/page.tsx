@@ -106,7 +106,7 @@ export default async function AdminRequestDetailPage({ params }: Props) {
         {/* Back Link */}
         <Link
           href="/admin/requests"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-emerald-700 cursor-pointer"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-sky-700 cursor-pointer"
         >
           <span>←</span>
           <span>กลับไปรายการคำขอ</span>
@@ -124,7 +124,7 @@ export default async function AdminRequestDetailPage({ params }: Props) {
                   #{request.id}
                 </span>
                 {category?.name && (
-                  <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-100">
+                  <span className="rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-semibold text-sky-700 border border-sky-100">
                     {category.name}
                   </span>
                 )}
@@ -288,7 +288,7 @@ export default async function AdminRequestDetailPage({ params }: Props) {
             {/* Review Section (if exists) */}
             {review && (
               <Section title="รีวิวและความพึงพอใจ">
-                <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
+                <div className="rounded-2xl border border-sky-100 bg-sky-50/50 p-5">
                   <div className="flex items-center gap-2">
                     <div className="flex text-amber-400 text-lg">
                       {"★".repeat(Math.max(1, Math.min(5, review.rating || 5)))}
@@ -329,11 +329,11 @@ export default async function AdminRequestDetailPage({ params }: Props) {
                 ค่าบริการและไทม์ไลน์
               </h2>
 
-              <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-center">
-                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600">
+              <div className="mt-4 rounded-xl border border-sky-100 bg-sky-50 p-4 text-center">
+                <p className="text-xs font-semibold uppercase tracking-wider text-sky-600">
                   ค่าบริการที่เสนอ
                 </p>
-                <p className="mt-1 text-2xl font-bold text-emerald-800">
+                <p className="mt-1 text-2xl font-bold text-sky-800">
                   {request.offered_fee != null
                     ? `${Number(request.offered_fee).toLocaleString()} บาท`
                     : "ไม่ได้ระบุ"}
@@ -381,7 +381,7 @@ export default async function AdminRequestDetailPage({ params }: Props) {
                 {customer && (
                   <Link
                     href={`/admin/users/${customer.id}`}
-                    className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline"
+                    className="text-xs font-semibold text-sky-600 hover:text-sky-700 hover:underline"
                   >
                     ดูโปรไฟล์
                   </Link>
@@ -427,7 +427,7 @@ export default async function AdminRequestDetailPage({ params }: Props) {
                 {companion && (
                   <Link
                     href={`/admin/companions/${companion.id}`}
-                    className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline"
+                    className="text-xs font-semibold text-sky-600 hover:text-sky-700 hover:underline"
                   >
                     ดูโปรไฟล์
                   </Link>

@@ -116,7 +116,7 @@ export default function AdminRequestActions({
           title: "ยกเลิกงานเรียบร้อยแล้ว",
           text: "ระบบได้ทำการปรับสถานะคำขอเป็น 'ยกเลิก' เรียบร้อยแล้ว",
           icon: "success",
-          confirmButtonColor: "#059669",
+          confirmButtonColor: "#0284c7",
           confirmButtonText: "ตกลง",
         });
         router.refresh();
@@ -132,7 +132,7 @@ export default function AdminRequestActions({
         title: "กรุณาเลือกผู้ดูแล",
         text: "กรุณาคลิกเลือกผู้ดูแล 1 ท่านจากรายการก่อนดำเนินการ",
         icon: "warning",
-        confirmButtonColor: "#059669",
+        confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",
       });
       return;
@@ -168,7 +168,7 @@ export default function AdminRequestActions({
             ? "มอบหมายงานให้ผู้ดูแลคนใหม่เรียบร้อยแล้ว (สถานะ: รับงานแล้ว)"
             : "ส่งคำขอไปยังผู้ดูแลคนใหม่เรียบร้อยแล้ว (สถานะ: รอตอบรับ)",
         icon: "success",
-        confirmButtonColor: "#059669",
+        confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",
       });
       router.refresh();
@@ -205,7 +205,7 @@ export default function AdminRequestActions({
     <>
       {/* Toast Notification */}
       {actionSuccessMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl bg-emerald-600 px-5 py-3 text-white shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl bg-sky-600 px-5 py-3 text-white shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-300">
           <span className="text-lg">✓</span>
           <span className="text-sm font-medium">{actionSuccessMessage}</span>
         </div>
@@ -228,7 +228,7 @@ export default function AdminRequestActions({
           <button
             type="button"
             onClick={() => setShowRebookModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-700 cursor-pointer shadow-sm"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-700 cursor-pointer shadow-sm"
           >
             <span>⚡</span>
             <span>จองด่วนเลือก Companion ใหม่</span>
@@ -298,7 +298,7 @@ export default function AdminRequestActions({
                     key={reason}
                     className={`flex items-center gap-3 rounded-xl border p-3 text-xs font-medium cursor-pointer transition ${
                       cancelReasonPreset === reason
-                        ? "border-emerald-500 bg-emerald-50/40 text-slate-900 font-semibold"
+                        ? "border-sky-500 bg-sky-50/40 text-slate-900 font-semibold"
                         : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                     }`}
                   >
@@ -307,7 +307,7 @@ export default function AdminRequestActions({
                       name="cancel_reason"
                       checked={cancelReasonPreset === reason}
                       onChange={() => setCancelReasonPreset(reason)}
-                      className="text-emerald-600 focus:ring-emerald-500"
+                      className="text-sky-600 focus:ring-sky-500"
                     />
                     <span>{reason}</span>
                   </label>
@@ -320,25 +320,25 @@ export default function AdminRequestActions({
                   placeholder="ระบุเหตุผลในการยกเลิก..."
                   value={customReason}
                   onChange={(e) => setCustomReason(e.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-300 p-3 text-xs text-slate-800 outline-none focus:border-emerald-500"
+                  className="mt-2 w-full rounded-xl border border-slate-300 p-3 text-xs text-slate-800 outline-none focus:border-sky-500"
                 />
               )}
             </div>
 
             {/* Quick Rebook checkbox */}
-            <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4">
+            <div className="mt-5 rounded-2xl border border-sky-100 bg-sky-50/60 p-4">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={rebookAfterCancel}
                   onChange={(e) => setRebookAfterCancel(e.target.checked)}
-                  className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
+                  className="mt-0.5 rounded text-sky-600 focus:ring-sky-500"
                 />
                 <div className="text-xs">
-                  <span className="font-bold text-emerald-900">
+                  <span className="font-bold text-sky-900">
                     เปิดระบบจองด่วนเลือก Companion ใหม่ให้ลูกค้าทันที
                   </span>
-                  <p className="mt-0.5 text-emerald-700">
+                  <p className="mt-0.5 text-sky-700">
                     หลังจากยกเลิก จะเปิดหน้าต่างให้คุณเลือกผู้ดูแลที่ว่างเพื่อมอบหมายงานนี้ให้ลูกค้าต่อทันที
                   </p>
                 </div>
@@ -388,7 +388,7 @@ export default function AdminRequestActions({
             {/* Modal Header */}
             <div className="flex items-start justify-between border-b border-slate-100 p-6">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-xl font-bold text-emerald-700">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-xl font-bold text-sky-700">
                   ⚡
                 </div>
                 <div>
@@ -418,7 +418,7 @@ export default function AdminRequestActions({
                     รายละเอียดคำขอเดิมของลูกค้า:{" "}
                     <strong className="text-slate-900">{customerName}</strong>
                   </span>
-                  <span className="font-bold text-emerald-700">
+                  <span className="font-bold text-sky-700">
                     ค่าบริการ {offeredFee != null ? `${offeredFee.toLocaleString()} บาท` : "-"}
                   </span>
                 </div>
@@ -446,7 +446,7 @@ export default function AdminRequestActions({
                     placeholder="ค้นหาชื่อ หรือเบอร์โทรศัพท์ Companion..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="min-w-0 flex-1 rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-emerald-500"
+                    className="min-w-0 flex-1 rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-sky-500"
                   />
 
                   {/* Filter tabs */}
@@ -456,7 +456,7 @@ export default function AdminRequestActions({
                       onClick={() => setFilterMode("all")}
                       className={`rounded-lg px-2.5 py-1 font-medium transition cursor-pointer ${
                         filterMode === "all"
-                          ? "bg-white text-emerald-700 font-bold shadow-xs"
+                          ? "bg-white text-sky-700 font-bold shadow-xs"
                           : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
@@ -467,7 +467,7 @@ export default function AdminRequestActions({
                       onClick={() => setFilterMode("time")}
                       className={`rounded-lg px-2.5 py-1 font-medium transition cursor-pointer ${
                         filterMode === "time"
-                          ? "bg-white text-emerald-700 font-bold shadow-xs"
+                          ? "bg-white text-sky-700 font-bold shadow-xs"
                           : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
@@ -478,7 +478,7 @@ export default function AdminRequestActions({
                       onClick={() => setFilterMode("area")}
                       className={`rounded-lg px-2.5 py-1 font-medium transition cursor-pointer ${
                         filterMode === "area"
-                          ? "bg-white text-emerald-700 font-bold shadow-xs"
+                          ? "bg-white text-sky-700 font-bold shadow-xs"
                           : "text-slate-600 hover:text-slate-900"
                       }`}
                     >
@@ -516,7 +516,7 @@ export default function AdminRequestActions({
                           onClick={() => setSelectedCompanionId(comp.id)}
                           className={`flex items-start gap-3.5 rounded-2xl border p-3.5 cursor-pointer transition ${
                             isSelected
-                              ? "border-emerald-600 bg-emerald-50/50 shadow-xs ring-1 ring-emerald-600"
+                              ? "border-sky-600 bg-sky-50/50 shadow-xs ring-1 ring-sky-600"
                               : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/70"
                           }`}
                         >
@@ -525,7 +525,7 @@ export default function AdminRequestActions({
                             name="selected_companion"
                             checked={isSelected}
                             onChange={() => setSelectedCompanionId(comp.id)}
-                            className="mt-1 text-emerald-600 focus:ring-emerald-500"
+                            className="mt-1 text-sky-600 focus:ring-sky-500"
                           />
 
                           {/* Avatar */}
@@ -596,7 +596,7 @@ export default function AdminRequestActions({
                   <label
                     className={`flex items-start gap-2.5 rounded-xl border p-3 cursor-pointer transition ${
                       targetStatus === "pending"
-                        ? "border-emerald-600 bg-white shadow-xs font-semibold text-emerald-900"
+                        ? "border-sky-600 bg-white shadow-xs font-semibold text-sky-900"
                         : "border-slate-200 bg-slate-100/60 text-slate-600"
                     }`}
                   >
@@ -605,7 +605,7 @@ export default function AdminRequestActions({
                       name="target_status"
                       checked={targetStatus === "pending"}
                       onChange={() => setTargetStatus("pending")}
-                      className="mt-0.5 text-emerald-600"
+                      className="mt-0.5 text-sky-600"
                     />
                     <div>
                       <p className="font-bold">รอ Companion ตอบรับ (Pending)</p>
@@ -618,7 +618,7 @@ export default function AdminRequestActions({
                   <label
                     className={`flex items-start gap-2.5 rounded-xl border p-3 cursor-pointer transition ${
                       targetStatus === "accepted"
-                        ? "border-emerald-600 bg-white shadow-xs font-semibold text-emerald-900"
+                        ? "border-sky-600 bg-white shadow-xs font-semibold text-sky-900"
                         : "border-slate-200 bg-slate-100/60 text-slate-600"
                     }`}
                   >
@@ -627,7 +627,7 @@ export default function AdminRequestActions({
                       name="target_status"
                       checked={targetStatus === "accepted"}
                       onChange={() => setTargetStatus("accepted")}
-                      className="mt-0.5 text-emerald-600"
+                      className="mt-0.5 text-sky-600"
                     />
                     <div>
                       <p className="font-bold">รับงานทันที (Accepted)</p>
@@ -666,7 +666,7 @@ export default function AdminRequestActions({
                   type="button"
                   onClick={handleRebookSubmit}
                   disabled={isPending || !selectedCompanionId}
-                  className="rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-emerald-700 transition disabled:opacity-50 cursor-pointer shadow-sm"
+                  className="rounded-xl bg-sky-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-sky-700 transition disabled:opacity-50 cursor-pointer shadow-sm"
                 >
                   {isPending ? "กำลังบันทึก..." : "ยืนยันจองด่วนให้ลูกค้า"}
                 </button>

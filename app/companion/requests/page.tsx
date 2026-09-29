@@ -223,7 +223,7 @@ export default async function CompanionRequestsPage() {
         {/* Header */}
 
         <div>
-          <p className="text-sm font-semibold text-violet-600">COMPANION</p>
+          <p className="text-sm font-semibold text-sky-600">COMPANION</p>
 
           <h1 className="mt-1 text-2xl font-bold text-slate-900">คำของาน</h1>
 

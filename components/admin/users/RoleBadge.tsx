@@ -7,7 +7,7 @@ type Props = {
 export default function RoleBadge({ role }: Props) {
   if (role === "companion") {
     return (
-      <span className="inline-flex rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
+      <span className="inline-flex rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">
         Companion
       </span>
     );

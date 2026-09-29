@@ -59,8 +59,8 @@ export default function UserPagination({ pagination, role, search }: Props) {
                 href={buildUrl(pageNumber)}
                 className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-semibold transition cursor-pointer ${
                   pageNumber === currentPage
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-700"
+                    ? "bg-sky-600 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-sky-50 hover:text-sky-700"
                 }`}
               >
                 {pageNumber}
@@ -100,7 +100,7 @@ function PaginationButton({
   return (
     <Link
       href={href}
-      className="cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700"
+      className="cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-sky-50 hover:text-sky-700"
     >
       {children}
     </Link>

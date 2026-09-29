@@ -100,7 +100,7 @@ export default function RequestsTable({
                     <td className="px-6 py-4 text-right">
                       <Link
                         href={`/admin/requests/${request.id}`}
-                        className="inline-flex whitespace-nowrap rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 cursor-pointer shadow-sm"
+                        className="inline-flex whitespace-nowrap rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700 cursor-pointer shadow-sm"
                       >
                         ดูรายละเอียด
                       </Link>

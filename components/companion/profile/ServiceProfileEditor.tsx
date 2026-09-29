@@ -358,7 +358,7 @@ export default function ServiceProfileEditor({
           <button
             type="button"
             onClick={handleEdit}
-            className="self-start rounded-lg border border-violet-200 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-violet-50 hover:text-violet-700 sm:self-auto cursor-pointer"
+            className="self-start rounded-lg border border-sky-200 px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-sky-50 hover:text-sky-700 sm:self-auto cursor-pointer"
           >
             แก้ไขข้อมูล
           </button>
@@ -377,7 +377,7 @@ export default function ServiceProfileEditor({
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="rounded-lg bg-violet-600 px-4 py-1.5 text-sm font-medium text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+              className="rounded-lg bg-sky-600 px-4 py-1.5 text-sm font-medium text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
             >
               {saving ? "กำลังบันทึก..." : "บันทึก"}
             </button>
@@ -417,7 +417,7 @@ export default function ServiceProfileEditor({
               maxLength={1000}
               rows={4}
               placeholder="แนะนำตัวและบอกเหตุผลที่อยากเป็น Companion..."
-              className="w-full rounded-xl border border-slate-200 p-4 outline-none transition focus:border-violet-500"
+              className="w-full rounded-xl border border-slate-200 p-4 outline-none transition focus:border-sky-500"
             />
           ) : (
             <p className="whitespace-pre-wrap rounded-xl bg-slate-50 p-4 text-slate-700">
@@ -440,7 +440,7 @@ export default function ServiceProfileEditor({
               maxLength={2000}
               rows={5}
               placeholder="ระบุประสบการณ์ ทักษะ หรือความสามารถที่เกี่ยวข้อง..."
-              className="w-full rounded-xl border border-slate-200 p-4 outline-none transition focus:border-violet-500"
+              className="w-full rounded-xl border border-slate-200 p-4 outline-none transition focus:border-sky-500"
             />
           ) : (
             <p className="whitespace-pre-wrap rounded-xl bg-slate-50 p-4 text-slate-700">
@@ -474,7 +474,7 @@ export default function ServiceProfileEditor({
                 {savedAreas.map((area) => (
                   <span
                     key={area.id}
-                    className="rounded-xl border border-violet-200 bg-violet-50 px-3 py-1.5 text-sm font-medium text-violet-700"
+                    className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700"
                   >
                     {area.district}, {area.province}
                   </span>
@@ -489,13 +489,13 @@ export default function ServiceProfileEditor({
                   placeholder="ค้นหาเขต / อำเภอ..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-200 sm:max-w-xs"
+                  className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-200 sm:max-w-xs"
                 />
 
                 <div className="flex flex-wrap items-center gap-3 text-xs">
                   <span className="font-medium text-slate-500">
                     เลือกแล้ว:{" "}
-                    <span className="font-bold text-violet-700">
+                    <span className="font-bold text-sky-700">
                       {selectedIds.length}
                     </span>{" "}
                     พื้นที่
@@ -504,7 +504,7 @@ export default function ServiceProfileEditor({
                   <button
                     type="button"
                     onClick={handleSelectAllAreas}
-                    className="font-medium text-violet-600 hover:underline cursor-pointer"
+                    className="font-medium text-sky-600 hover:underline cursor-pointer"
                   >
                     เลือกทั้งหมด
                   </button>
@@ -536,15 +536,15 @@ export default function ServiceProfileEditor({
                           key={area.id}
                           className={`flex cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2.5 text-sm transition ${
                             checked
-                              ? "border-violet-400 bg-violet-50/70 font-medium text-violet-900"
-                              : "border-slate-200 text-slate-700 hover:border-violet-200 hover:bg-slate-50"
+                              ? "border-sky-400 bg-sky-50/70 font-medium text-sky-900"
+                              : "border-slate-200 text-slate-700 hover:border-sky-200 hover:bg-slate-50"
                           }`}
                         >
                           <input
                             type="checkbox"
                             checked={checked}
                             onChange={() => handleToggleArea(area.id)}
-                            className="h-4 w-4 cursor-pointer rounded accent-violet-600"
+                            className="h-4 w-4 cursor-pointer rounded accent-sky-600"
                           />
 
                           <div className="min-w-0 flex-1">
@@ -601,7 +601,7 @@ export default function ServiceProfileEditor({
                           {day?.label}
                         </span>
 
-                        <span className="rounded-lg bg-violet-100/70 px-3 py-1 font-medium text-violet-700">
+                        <span className="rounded-lg bg-sky-100/70 px-3 py-1 font-medium text-sky-700">
                           {formatTime(item.start_time)} –{" "}
                           {formatTime(item.end_time)} น.
                         </span>
@@ -629,7 +629,7 @@ export default function ServiceProfileEditor({
                     key={day.value}
                     className={`rounded-xl border p-3.5 transition ${
                       current.enabled
-                        ? "border-violet-300 bg-violet-50/40"
+                        ? "border-sky-300 bg-sky-50/40"
                         : "border-slate-200 bg-white"
                     }`}
                   >
@@ -643,13 +643,13 @@ export default function ServiceProfileEditor({
                               enabled: e.target.checked,
                             })
                           }
-                          className="h-4 w-4 cursor-pointer rounded accent-violet-600"
+                          className="h-4 w-4 cursor-pointer rounded accent-sky-600"
                         />
 
                         <span
                           className={`text-sm font-semibold ${
                             current.enabled
-                              ? "text-violet-900"
+                              ? "text-sky-900"
                               : "text-slate-600"
                           }`}
                         >
@@ -667,7 +667,7 @@ export default function ServiceProfileEditor({
                                 startTime: e.target.value,
                               })
                             }
-                            className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-violet-500"
+                            className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-sky-500"
                           />
 
                           <span className="text-xs text-slate-400">ถึง</span>
@@ -680,13 +680,13 @@ export default function ServiceProfileEditor({
                                 endTime: e.target.value,
                               })
                             }
-                            className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-violet-500"
+                            className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-sky-500"
                           />
 
                           <button
                             type="button"
                             onClick={() => handleApplyTimeToAll(day.value)}
-                            className="ml-1 cursor-pointer text-xs text-violet-600 hover:text-violet-700 hover:underline"
+                            className="ml-1 cursor-pointer text-xs text-sky-600 hover:text-sky-700 hover:underline"
                           >
                             ใช้กับทุกวัน
                           </button>

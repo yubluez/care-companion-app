@@ -136,7 +136,7 @@ export default async function CompanionJobDetailPage({ params }: Props) {
       <div className="mx-auto max-w-6xl px-4 py-8">
         <Link
           href="/companion/jobs"
-          className="mb-6 inline-flex text-md font-semibold text-slate-500 hover:text-violet-600"
+          className="mb-6 inline-flex text-md font-semibold text-slate-500 hover:text-sky-600"
         >
           ← กลับไปงานของฉัน
         </Link>
@@ -180,7 +180,7 @@ export default async function CompanionJobDetailPage({ params }: Props) {
                     {customer?.full_name || "ไม่ระบุชื่อ"}
                   </p>
                   {contactPhone && (
-                    <p className="mt-1 text-sm text-violet-700">
+                    <p className="mt-1 text-sm text-sky-700">
                       เบอร์โทรศัพท์: {contactPhone}
                     </p>
                   )}

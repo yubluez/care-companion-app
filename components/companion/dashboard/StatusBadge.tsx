@@ -16,12 +16,12 @@ const STATUS_CONFIG: Record<
 
   accepted: {
     label: "รับงานแล้ว",
-    className: "bg-violet-100 text-violet-700",
+    className: "bg-sky-100 text-sky-700",
   },
 
   in_progress: {
     label: "กำลังให้บริการ",
-    className: "bg-purple-100 text-purple-700",
+    className: "bg-blue-100 text-blue-700",
   },
 
   completed: {

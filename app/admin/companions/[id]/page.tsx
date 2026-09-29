@@ -249,7 +249,7 @@ export default async function AdminCompanionDetailPage({ params }: Props) {
                     href={documentUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 cursor-pointer shadow-sm"
+                    className="inline-flex rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 cursor-pointer shadow-sm"
                   >
                     เปิดเอกสารยืนยันตัวตน
                   </a>

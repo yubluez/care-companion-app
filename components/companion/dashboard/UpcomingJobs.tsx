@@ -38,7 +38,7 @@ export default function UpcomingJobs({ jobs }: Props) {
 
         <Link
           href="/companion/jobs"
-          className="text-sm font-semibold text-violet-600 hover:text-violet-700 whitespace-nowrap cursor-pointer"
+          className="text-sm font-semibold text-sky-600 hover:text-sky-700 whitespace-nowrap cursor-pointer"
         >
           ดูทั้งหมด
         </Link>

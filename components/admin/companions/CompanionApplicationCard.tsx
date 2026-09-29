@@ -59,7 +59,7 @@ export default function CompanionApplicationCard({
         <div>
           <Link
             href={`/admin/companions/${application.userId}`}
-            className="inline-flex rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition cursor-pointer shadow-sm"
+            className="inline-flex rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-700 transition cursor-pointer shadow-sm"
           >
             ดูใบสมัคร
           </Link>

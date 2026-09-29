@@ -190,10 +190,10 @@ export default async function CompanionProfilePage() {
                 <img
                   src={avatarUrl}
                   alt={displayName}
-                  className="h-20 w-20 rounded-full border border-violet-200 object-cover"
+                  className="h-20 w-20 rounded-full border border-sky-200 object-cover"
                 />
               ) : (
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-violet-100 text-2xl font-bold text-violet-700">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-sky-100 text-2xl font-bold text-sky-700">
                   {displayName.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -201,7 +201,7 @@ export default async function CompanionProfilePage() {
               <div className="space-y-2">
                 <h1 className="text-2xl font-bold">{displayName}</h1>
 
-                <p className="text-sm font-medium text-violet-700">
+                <p className="text-sm font-medium text-sky-700">
                   ผู้ให้บริการ (Companion)
                 </p>
 
@@ -253,7 +253,7 @@ export default async function CompanionProfilePage() {
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
             <p className="text-sm text-slate-500">จำนวนรีวิว</p>
-            <p className="mt-3 text-3xl font-bold text-violet-600">
+            <p className="mt-3 text-3xl font-bold text-sky-600">
               {companionError ? "-" : ratingCount}
             </p>
             <p className="mt-2 text-xs text-slate-500">รีวิวจากลูกค้า</p>
@@ -311,7 +311,7 @@ export default async function CompanionProfilePage() {
         <section className="grid gap-4 sm:grid-cols-2">
           <Link
             href="/companion/requests"
-            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-violet-300"
+            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-sky-300"
           >
             <h3 className="font-bold text-slate-900">คำของาน</h3>
             <p className="mt-2 text-sm text-slate-500">
@@ -321,7 +321,7 @@ export default async function CompanionProfilePage() {
 
           <Link
             href="/companion/jobs"
-            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-violet-300"
+            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-sky-300"
           >
             <h3 className="font-bold text-slate-900">งานของฉัน</h3>
             <p className="mt-2 text-sm text-slate-500">

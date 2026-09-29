@@ -22,7 +22,7 @@ export default function ServiceAreas({ areas }: Props) {
           {areas.map((area) => (
             <span
               key={area.id}
-              className="bg-violet-50 border border-violet-200 text-violet-700 px-3 py-2 rounded-xl text-sm font-medium"
+              className="bg-sky-50 border border-sky-200 text-sky-700 px-3 py-2 rounded-xl text-sm font-medium"
             >
               {area.district}, {area.province}
             </span>

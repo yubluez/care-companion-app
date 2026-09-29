@@ -193,14 +193,14 @@ export default async function CompanionDashboardPage() {
 
         {/* Pending Requests Alert Banner (แสดงเฉพาะเมื่อมีคำขอใหม่ที่รอยืนยัน) */}
         {pendingCount > 0 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-violet-200 bg-violet-50 p-5 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-sky-200 bg-sky-50 p-5 shadow-sm">
             <div className="flex items-center gap-3">
               <span className="text-2xl">🔔</span>
               <div>
-                <p className="font-bold text-violet-900">
+                <p className="font-bold text-sky-900">
                   คุณมีคำขอใหม่ {pendingCount} รายการ ที่กำลังรอการตอบรับ
                 </p>
-                <p className="text-sm text-violet-700">
+                <p className="text-sm text-sky-700">
                   กรุณาตรวจสอบและตัดสินใจตอบรับหรือปฏิเสธคำขอ
                 </p>
               </div>
@@ -208,7 +208,7 @@ export default async function CompanionDashboardPage() {
 
             <Link
               href="/companion/requests"
-              className="inline-flex items-center justify-center rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700 whitespace-nowrap"
+              className="inline-flex items-center justify-center rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 whitespace-nowrap"
             >
               ดูคำของาน ({pendingCount}) →
             </Link>

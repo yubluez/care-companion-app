@@ -140,7 +140,7 @@ export default async function CompanionRequestDetailPage({ params }: Props) {
       <div className="max-w-6xl mx-auto px-4 py-8">
         <Link
           href="/companion/requests"
-          className="inline-flex text-sm font-semibold text-slate-500 hover:text-violet-600 mb-6"
+          className="inline-flex text-sm font-semibold text-slate-500 hover:text-sky-600 mb-6"
         >
           ← กลับไปคำของาน
         </Link>

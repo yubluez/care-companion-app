@@ -23,7 +23,7 @@ const statusConfig: Record<
 
   in_progress: {
     label: "กำลังให้บริการ",
-    className: "bg-violet-100 text-violet-700",
+    className: "bg-sky-100 text-sky-700",
   },
 
   completed: {

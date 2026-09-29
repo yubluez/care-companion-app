@@ -92,7 +92,7 @@ export default async function LandingPage() {
       {/* ─── Hero Section ───────────────────────────────────────── */}
       <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-28">
         {/* Soft background glows */}
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-gradient-to-tr from-sky-200/40 via-sky-100/30 to-violet-100/30 blur-3xl -z-10 rounded-full pointer-events-none" />
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-gradient-to-tr from-sky-200/40 via-sky-100/30 to-sky-100/30 blur-3xl -z-10 rounded-full pointer-events-none" />
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
           {/* Tag Pill */}
@@ -129,7 +129,7 @@ export default async function LandingPage() {
               href="/onboarding/role"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold px-6 py-3.5 rounded-2xl border border-slate-200 transition hover:border-slate-300 shadow-xs"
             >
-              <Users className="w-4 h-4 text-violet-600" />
+              <Users className="w-4 h-4 text-sky-600" />
               <span>สมัครเป็น Companion</span>
             </Link>
           </div>

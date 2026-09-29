@@ -28,7 +28,7 @@ export default function RequestActions({ requestId }: Props) {
       showCancelButton: true,
       confirmButtonText: "ยืนยันรับงาน",
       cancelButtonText: "ยกเลิก",
-      confirmButtonColor: "#7c3aed",
+      confirmButtonColor: "#0284c7",
       cancelButtonColor: "#64748b",
       reverseButtons: true,
     });
@@ -46,7 +46,7 @@ export default function RequestActions({ requestId }: Props) {
           title: "ไม่สามารถรับงานได้",
           text: result.error || "กรุณาลองใหม่อีกครั้ง",
           icon: "error",
-          confirmButtonColor: "#7c3aed",
+          confirmButtonColor: "#0284c7",
           confirmButtonText: "ตกลง",
         });
         setError(result.error || "ไม่สามารถรับงานได้");
@@ -57,7 +57,7 @@ export default function RequestActions({ requestId }: Props) {
         title: "รับงานเรียบร้อยแล้ว!",
         text: "ระบบได้บันทึกการรับงานแล้ว คุณสามารถเริ่มให้บริการได้เมื่อถึงเวลานัดหมาย",
         icon: "success",
-        confirmButtonColor: "#7c3aed",
+        confirmButtonColor: "#0284c7",
         confirmButtonText: "ไปยังหน้ารายละเอียดงาน",
       });
 
@@ -69,7 +69,7 @@ export default function RequestActions({ requestId }: Props) {
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง",
         icon: "error",
-        confirmButtonColor: "#7c3aed",
+        confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",
       });
       setError("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
@@ -106,7 +106,7 @@ export default function RequestActions({ requestId }: Props) {
           title: "ไม่สามารถปฏิเสธได้",
           text: result.error || "กรุณาลองใหม่อีกครั้ง",
           icon: "error",
-          confirmButtonColor: "#7c3aed",
+          confirmButtonColor: "#0284c7",
           confirmButtonText: "ตกลง",
         });
         setError(result.error || "ไม่สามารถปฏิเสธคำขอได้");
@@ -116,7 +116,7 @@ export default function RequestActions({ requestId }: Props) {
       await Swal.fire({
         title: "ปฏิเสธคำขอเรียบร้อยแล้ว",
         icon: "success",
-        confirmButtonColor: "#7c3aed",
+        confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",
       });
 
@@ -128,7 +128,7 @@ export default function RequestActions({ requestId }: Props) {
         title: "เกิดข้อผิดพลาด",
         text: "ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง",
         icon: "error",
-        confirmButtonColor: "#7c3aed",
+        confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",
       });
       setError("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
@@ -159,7 +159,7 @@ export default function RequestActions({ requestId }: Props) {
           type="button"
           onClick={handleAccept}
           disabled={loading !== null}
-          className="cursor-pointer rounded-xl bg-violet-600 py-3 font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="cursor-pointer rounded-xl bg-sky-600 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           {loading === "accept" ? "กำลังรับงาน..." : "รับงาน"}
         </button>

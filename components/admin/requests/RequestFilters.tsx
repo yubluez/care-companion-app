@@ -96,12 +96,12 @@ export default function RequestFilters({ status, search, counts }: Props) {
             name="search"
             defaultValue={search}
             placeholder="ค้นหา Customer, Companion หรือปลายทาง..."
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
           />
 
           <button
             type="submit"
-            className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 cursor-pointer shadow-sm"
+            className="rounded-xl bg-sky-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 cursor-pointer shadow-sm"
           >
             ค้นหา
           </button>
@@ -113,7 +113,7 @@ export default function RequestFilters({ status, search, counts }: Props) {
                   ? "/admin/requests"
                   : `/admin/requests?status=${status}`
               }
-              className="flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 cursor-pointer"
+              className="flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-sky-50 hover:text-sky-700 hover:border-sky-200 cursor-pointer"
             >
               ล้าง
             </Link>
@@ -140,8 +140,8 @@ function FilterButton({
       href={href}
       className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold whitespace-nowrap transition cursor-pointer ${
         active
-          ? "bg-emerald-600 text-white shadow-sm"
-          : "text-slate-600 hover:bg-white hover:text-emerald-700"
+          ? "bg-sky-600 text-white shadow-sm"
+          : "text-slate-600 hover:bg-white hover:text-sky-700"
       }`}
     >
       {label}

@@ -9,7 +9,7 @@ type Props = {
 
 export default function RequestCard({ request }: Props) {
   return (
-    <article className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-violet-200 hover:shadow-sm transition">
+    <article className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-sky-200 hover:shadow-sm transition">
       {/* Header */}
       <div className="flex justify-between gap-4">
         <div>
@@ -71,7 +71,7 @@ export default function RequestCard({ request }: Props) {
 
         <Link
           href={`/companion/requests/${request.id}`}
-          className="border border-violet-300 text-violet-600 hover:bg-violet-600 hover:text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition whitespace-nowrap cursor-pointer"
+          className="border border-sky-300 text-sky-600 hover:bg-sky-600 hover:text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition whitespace-nowrap cursor-pointer"
         >
           ดูรายละเอียด
         </Link>

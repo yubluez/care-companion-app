@@ -44,7 +44,7 @@ export default function AdminNavbar({ adminName }: Props) {
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
         <Link href="/admin" className="cursor-pointer flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 font-bold text-white shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-600 font-bold text-white shadow-sm">
             A
           </div>
 
@@ -64,8 +64,8 @@ export default function AdminNavbar({ adminName }: Props) {
               href={item.href}
               className={`cursor-pointer rounded-xl px-4 py-2 text-sm font-semibold transition ${
                 isActive(item.href)
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700"
+                  ? "bg-sky-600 text-white shadow-sm"
+                  : "text-slate-500 hover:bg-sky-50 hover:text-sky-700"
               }`}
             >
               {item.label}
@@ -99,8 +99,8 @@ export default function AdminNavbar({ adminName }: Props) {
               onClick={() => setOpen(false)}
               className={`cursor-pointer block rounded-xl px-4 py-3 text-sm font-semibold transition ${
                 isActive(item.href)
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-700"
+                  ? "bg-sky-600 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-sky-50 hover:text-sky-700"
               }`}
             >
               {item.label}

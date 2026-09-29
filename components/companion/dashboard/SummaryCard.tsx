@@ -20,7 +20,7 @@ export default function SummaryCard({
   const content = (
     <div
       className={`relative bg-white rounded-2xl border border-slate-200 p-5 shadow-sm transition ${
-        href ? "hover:border-violet-300 hover:shadow-md cursor-pointer" : ""
+        href ? "hover:border-sky-300 hover:shadow-md cursor-pointer" : ""
       }`}
     >
       <div className="flex items-center justify-between gap-3">
@@ -31,7 +31,7 @@ export default function SummaryCard({
       <div className="mt-2 flex items-baseline gap-2">
         <p className="text-3xl font-bold text-slate-900">{value}</p>
         {badge ? (
-          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">
             {badge}
           </span>
         ) : null}
