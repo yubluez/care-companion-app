@@ -70,7 +70,7 @@ export default function CustomerActions({ pendingCount, activeCount }: Props) {
           className="mt-7 inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-sky-600 hover:text-sky-700"
         >
           ดูคำขอทั้งหมด
-          <ArrowRight size={17} />
+          {/* <ArrowRight size={17} /> */}
         </Link>
       </div>
     </section>

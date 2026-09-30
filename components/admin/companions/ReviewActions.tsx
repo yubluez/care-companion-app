@@ -12,9 +12,10 @@ import Swal from "sweetalert2";
 
 type Props = {
   companionId: string;
+  companionEmail?: string | null;
 };
 
-export default function ReviewActions({ companionId }: Props) {
+export default function ReviewActions({ companionId, companionEmail }: Props) {
   const router = useRouter();
 
   const [mode, setMode] = useState<"normal" | "reject">("normal");
@@ -46,7 +47,7 @@ export default function ReviewActions({ companionId }: Props) {
       setLoading("approve");
       setError(null);
 
-      const result = await approveCompanion(companionId);
+      const result = await approveCompanion(companionId, companionEmail);
 
       if (!result.success) {
         await Swal.fire({
@@ -62,7 +63,9 @@ export default function ReviewActions({ companionId }: Props) {
 
       await Swal.fire({
         title: "อนุมัติสำเร็จ!",
-        text: "อนุมัติใบสมัคร Companion เรียบร้อยแล้ว",
+        text: result.emailSent
+          ? "อนุมัติใบสมัคร Companion และส่งอีเมลแจ้งเตือนเรียบร้อยแล้ว"
+          : "อนุมัติใบสมัคร Companion เรียบร้อยแล้ว",
         icon: "success",
         confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",
@@ -118,7 +121,11 @@ export default function ReviewActions({ companionId }: Props) {
       setLoading("reject");
       setError(null);
 
-      const result = await rejectCompanion(companionId, reason);
+      const result = await rejectCompanion(
+        companionId,
+        reason,
+        companionEmail
+      );
 
       if (!result.success) {
         await Swal.fire({
@@ -134,6 +141,9 @@ export default function ReviewActions({ companionId }: Props) {
 
       await Swal.fire({
         title: "ปฏิเสธใบสมัครเรียบร้อยแล้ว",
+        text: result.emailSent
+          ? "บันทึกผลการปฏิเสธและส่งอีเมลแจ้งเตือนผู้สมัครเรียบร้อยแล้ว"
+          : undefined,
         icon: "success",
         confirmButtonColor: "#0284c7",
         confirmButtonText: "ตกลง",

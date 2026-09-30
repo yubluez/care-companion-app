@@ -106,7 +106,7 @@ export default function Recommended() {
           href="/customer/compsearch"
           className="shrink-0 text-sm font-semibold text-sky-600 hover:underline"
         >
-          ดูทั้งหมด →
+          ดูทั้งหมด
         </Link>
       </div>
 

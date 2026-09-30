@@ -2,16 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendCompanionReviewEmail } from "@/lib/email/companionNotification";
 
 type Result = {
   success: boolean;
   error?: string;
+  emailSent?: boolean;
 };
 
 async function reviewCompanion(
   companionId: string,
   action: "approve" | "reject",
   rejectionReason?: string,
+  targetEmail?: string | null
 ): Promise<Result> {
   try {
     const supabase = await createClient();
@@ -44,12 +47,27 @@ async function reviewCompanion(
       };
     }
 
+    // ส่งอีเมลแจ้งเตือนไปยัง Companion
+    let emailSent = false;
+    try {
+      const emailResult = await sendCompanionReviewEmail({
+        companionId,
+        action,
+        rejectionReason: rejectionReason?.trim(),
+        targetEmail,
+      });
+      emailSent = emailResult.success;
+    } catch (mailError) {
+      console.error("Failed to send companion notification email:", mailError);
+    }
+
     revalidatePath("/admin");
     revalidatePath("/admin/companions");
     revalidatePath(`/admin/companions/${companionId}`);
 
     return {
       success: true,
+      emailSent,
     };
   } catch (error) {
     console.error("Review companion unexpected error:", error);
@@ -61,11 +79,18 @@ async function reviewCompanion(
   }
 }
 
-export async function approveCompanion(companionId: string) {
-  return reviewCompanion(companionId, "approve");
+export async function approveCompanion(
+  companionId: string,
+  targetEmail?: string | null
+) {
+  return reviewCompanion(companionId, "approve", undefined, targetEmail);
 }
 
-export async function rejectCompanion(companionId: string, reason: string) {
+export async function rejectCompanion(
+  companionId: string,
+  reason: string,
+  targetEmail?: string | null
+) {
   if (!reason.trim()) {
     return {
       success: false,
@@ -73,7 +98,7 @@ export async function rejectCompanion(companionId: string, reason: string) {
     };
   }
 
-  return reviewCompanion(companionId, "reject", reason);
+  return reviewCompanion(companionId, "reject", reason, targetEmail);
 }
 
 function translateError(message: string) {

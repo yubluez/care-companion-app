@@ -114,8 +114,23 @@ export async function updateCompanionProfileBase(
     fullName: string;
     phone: string;
     avatarUrl: string | null;
+    email?: string | null;
   },
 ) {
+  if (data.email) {
+    const { error: withEmailError } = await supabase
+      .from("profiles")
+      .update({
+        full_name: data.fullName,
+        phone: data.phone,
+        avatar_url: data.avatarUrl,
+        email: data.email,
+      })
+      .eq("id", userId);
+
+    if (!withEmailError) return;
+  }
+
   const { error } = await supabase
     .from("profiles")
     .update({

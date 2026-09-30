@@ -282,6 +282,7 @@ export function useCompanionOnboarding() {
         fullName: trimmedName,
         phone: trimmedPhone,
         avatarUrl: finalAvatarUrl || null,
+        email: user.email || email || null,
       });
 
       // companion_profiles

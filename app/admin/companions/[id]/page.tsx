@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import ReviewActions from "@/components/admin/companions/ReviewActions";
 import VerificationBadge from "@/components/admin/companions/VerificationBadge";
+import { getCompanionContactInfo } from "@/lib/email/companionNotification";
 
 type Props = {
   params: Promise<{
@@ -73,38 +74,43 @@ export default async function AdminCompanionDetailPage({ params }: Props) {
     notFound();
   }
 
-  const [{ data: areaRows }, { data: availabilityRows }] = await Promise.all([
-    supabase
-      .from("companion_service_areas")
-      .select(
-        `
+  const [{ data: areaRows }, { data: availabilityRows }, companionContact] =
+    await Promise.all([
+      supabase
+        .from("companion_service_areas")
+        .select(
+          `
         area:areas (
           id,
           province,
           district
         )
       `,
-      )
-      .eq("companion_id", id),
+        )
+        .eq("companion_id", id),
 
-    supabase
-      .from("companion_availability")
-      .select(
-        `
+      supabase
+        .from("companion_availability")
+        .select(
+          `
         id,
         day_of_week,
         start_time,
         end_time
       `,
-      )
-      .eq("companion_id", id)
-      .order("day_of_week", {
-        ascending: true,
-      })
-      .order("start_time", {
-        ascending: true,
-      }),
-  ]);
+        )
+        .eq("companion_id", id)
+        .order("day_of_week", {
+          ascending: true,
+        })
+        .order("start_time", {
+          ascending: true,
+        }),
+
+      getCompanionContactInfo(id),
+    ]);
+
+  const companionEmail = companionContact?.email ?? null;
 
   const areas = (areaRows ?? [])
     .map((row) => getRelation(row.area))
@@ -171,6 +177,13 @@ export default async function AdminCompanionDetailPage({ params }: Props) {
                 <p className="mt-1 text-sm text-slate-500">
                   {profile.phone || "ไม่มีเบอร์โทรศัพท์"}
                 </p>
+
+                {companionEmail && (
+                  <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
+                    <span className="text-slate-400">✉</span>
+                    <span>{companionEmail}</span>
+                  </p>
+                )}
               </div>
             </div>
 
@@ -293,7 +306,10 @@ export default async function AdminCompanionDetailPage({ params }: Props) {
                   ตรวจสอบข้อมูลและเอกสารให้เรียบร้อยก่อนตัดสินใจ
                 </p>
 
-                <ReviewActions companionId={id} />
+                <ReviewActions
+                  companionId={id}
+                  companionEmail={companionEmail}
+                />
               </section>
             )}
 
